@@ -65,10 +65,7 @@ function GraphFunction(options) {
 	};
 	var opts = Object.assign({},defaults,options);
 	var canvas = opts.canvas;
-	if(!canvas||canvas.tagName.toLowerCase()!=="canvas"){
-		throw new Error("dom isn't canvas!");
-	}
-
+	if(!canvas||canvas.tagName.toLowerCase()!=="canvas") throw new Error("dom isn't canvas!");
 	canvas.width = opts.width;
 	canvas.height = opts.height;
 	canvas.style.width = opts.width+"px";
