@@ -81,7 +81,7 @@ new GraphFunction({
     fun: x => Math.sin(x),//要绘制的函数表达式：y = sin(x)，默认函数为y = x
 });
 ```
-* result：
+* result：   
 ![](img/1.jpg) 
 
 ##### 2.余弦函数
@@ -110,7 +110,7 @@ new GraphFunction({
     fun: x => Math.cos(x),//要绘制的函数表达式：y = cos(x)，默认函数为y = x
 });
 ```
-* result：
+* result：   
 ![](img/2.jpg) 
 
 ##### 3.反比例函数
@@ -144,7 +144,7 @@ new GraphFunction({
     domain: x => x !== 0,//要绘制函数的定义域
 });
 ```
-* result：
+* result：   
 ![](img/3.jpg) 
 
 ##### 4.二次函数
@@ -172,7 +172,7 @@ new GraphFunction({
     fun: x => x * x,//要绘制的函数表达式，默认函数为y = x
 });
 ```
-* result：
+* result：   
 ![](img/4.jpg) 
 
 ##### 5.指数函数
@@ -200,7 +200,7 @@ new GraphFunction({
     fun: x => Math.pow(2,x),//要绘制的函数表达式：y=2^x，默认函数为y = x
 });
 ```
-* result：
+* result：   
 ![](img/5.jpg) 
 
 ##### 6.对数函数
@@ -229,6 +229,6 @@ new GraphFunction({
     domain:x=>x>0
 });
 ```
-* result：
+* result：   
 ![](img/6.jpg) 
 
