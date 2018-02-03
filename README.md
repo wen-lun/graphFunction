@@ -1,4 +1,58 @@
 ## 只是用来画函数图像的
+
+#### 默认参数
+```javascript
+options = {
+    width:600,
+    height:400,
+    backgroundColor:"white",
+    /* xStep：横坐标单位与像素的关系，若为 Math.PI/100，则表示每100个像素为1个Math.PI，若为1/50表示每50个像素为1个单位
+     * yStep：纵坐标单位与像素的关系，若为 100，则表示每100个像素为1个单位 */
+    xStep:1,
+    yStep:1,
+    animation:true,//是否显示动画
+    xUnit:{ //x轴单位
+        pixel:null,//一个单位有多少像素
+        value:1,//单位值
+        suffix:"",//后缀
+        step:1,//步长，多少步才显示单位
+    },
+    yUnit:{ //y轴单位
+        pixel:null,//一个单位有多少像素
+        value:1,//单位值
+        suffix:"",//后缀
+        step:1,//步长，多少步才显示单位
+    },
+    showScale:true,//是否显示刻度
+    scaleLen:5,//刻度长度
+    scaleFontSize:12,//刻度字体大小
+    coorTextColor:"black",//坐标轴字体颜色
+    x0yFontSize:18,
+    color:"black",//函数图像颜色
+    hCoorColor:"black",//横坐标颜色
+    vCoorColor:"black",//纵坐标颜色
+    coorLineWidth:0.5,//坐标轴线宽
+    coorArrowLen:8,//坐标轴箭头长度
+    points:[],//要标记的点,格式:{x:x,y:y,showDotted:true|false,mark:'P'} 若不提供y,则系统自动根据函数计算y,默认显示虚线
+    markPointLineWidth:0.5,//描点的虚线线宽
+    markPointRadius:3,//描点 点的半径
+    markPointColor:"brown",//描点颜色
+    markPointFontSize:16,
+    //定义域，如果x!=0,函数返回x!=0即可
+    domain:function (x) {
+        return true;
+    },
+    //值域
+    range:function (y) {
+        return true;
+    },
+    //要绘制的函数
+    fun:function (x) {
+        return x;
+    }
+};
+```
+
 #### 下面是6个小栗子
 
 ##### 1.正弦函数

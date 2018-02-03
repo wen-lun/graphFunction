@@ -17,7 +17,7 @@ function GraphFunction(options) {
 	var defaults = {
 		width:600,
 		height:400,
-		backgroundColor:"white",
+		backgroundColor:"white",//背景色
 		/* xStep：横坐标单位与像素的关系，若为 Math.PI/100，则表示每100个像素为1个Math.PI，若为1/50表示每50个像素为1个单位
 		 * yStep：纵坐标单位与像素的关系，若为 100，则表示每100个像素为1个单位 */
 		xStep:1,
