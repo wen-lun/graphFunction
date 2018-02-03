@@ -24,6 +24,9 @@ new GraphFunction({
     vCoorColor: "red",//纵坐标颜色，默认黑色
     hCoorColor: "blue",//横坐标颜色，默认黑色
     fun: x => Math.sin(x),//要绘制的函数表达式：y = sin(x)，默认函数为y = x
+    range:y=>{ //值域
+        return y>0.6||y<-0.3;
+    }
 });
 
 //余弦函数图像

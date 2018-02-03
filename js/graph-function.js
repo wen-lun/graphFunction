@@ -283,9 +283,12 @@ function GraphFunction(options) {
 
 		/*根据x坐标绘制一小段线段*/
 		var drawLine = function (i) {
-			var start = centerCoor2CanvasCoor(i,opts.yStep*fun(i*opts.xStep));
+			var y = opts.yStep*fun(i*opts.xStep);
+            if(!opts.range(pixel2value(y,opts.yUnit))) return;
+			var start = centerCoor2CanvasCoor(i,y);
 			if(i<opts.width*0.5&&opts.domain(i*opts.xStep)){
-				var end = centerCoor2CanvasCoor(i+1,opts.yStep*fun((i+1)*opts.xStep));
+				y = opts.yStep*fun((i+1)*opts.xStep);
+				var end = centerCoor2CanvasCoor(i+1,y);
 				ctx.beginPath();
 				ctx.drawLine(start,end);
 				ctx.stroke();
