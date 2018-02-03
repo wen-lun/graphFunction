@@ -1,0 +1,59 @@
+html,
+body {
+  height: 100%;
+  padding: 0;
+  margin: 0;
+}
+/*滚动条样式*/
+::-webkit-scrollbar-track {
+  display: none;
+}
+::-webkit-scrollbar {
+  width: 4px;
+  height: 0;
+  background-color: #ddd;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #999;
+}
+/*滚动条样式*/
+#container {
+  padding: 40px 20px;
+}
+#container .item {
+  margin: 10px;
+}
+#container .item .header {
+  font-size: 18px;
+  height: 40px;
+  line-height: 40px;
+  display: flex;
+  align-items: center;
+}
+#container .item .header:before {
+  content: "";
+  display: block;
+  width: 25px;
+  height: 25px;
+  background-image: url("../img/arrow.png");
+  background-size: cover;
+}
+#container .item .body {
+  display: flex;
+}
+#container .item .body canvas {
+  border: 1px solid #ddd;
+  padding: 5px;
+}
+#container .item .body .code {
+  margin-left: 10px;
+  border-left: 3px solid #ab340f;
+}
+#container .item .body .code pre {
+  margin: 0;
+  font-size: 18px;
+}
+#container .item .body .code code {
+  padding-top: 0;
+  padding-bottom: 0;
+}
