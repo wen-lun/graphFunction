@@ -68,6 +68,7 @@ function GraphFunction(options) {
 	};
 	var opts = Object.assign({},defaults,options);
 	var canvas = opts.canvas;
+	var isMouseDown = false;//记录鼠标是否按下
 	if(!canvas||canvas.tagName.toLowerCase()!=="canvas") throw new Error("dom isn't canvas!");
 	canvas.width = opts.width;
 	canvas.height = opts.height;
@@ -445,15 +446,28 @@ function GraphFunction(options) {
 	 * 添加鼠标移动事件，然后根据鼠标的x坐标来描点
      */
 	canvas.addEventListener("mousemove",function (e) {
-		var offsetX = e.offsetX;
-		var widthHalf = opts.width*0.5;
-		//计算出x坐标
-		var x = pixel2value(offsetX - widthHalf,opts.xUnit);
-
-        drawCoor();
+		//若鼠标未按下，就不标记点！
+		if(!isMouseDown) return;
+		drawCoor();
 		drawFun();
+		//计算出x坐标
+		var x = pixel2value(e.offsetX - opts.width*0.5,opts.xUnit);
 		//标记点
 		markPoint(ctx,{x:x});
+    });
+	canvas.addEventListener("mousedown",function (e) {
+		isMouseDown = true;
+        drawCoor();
+        drawFun();
+        //计算出x坐标
+        var x = pixel2value(e.offsetX - opts.width*0.5,opts.xUnit);
+        //标记点
+        markPoint(ctx,{x:x});
+    });
+	canvas.addEventListener("mouseup",function () {
+		isMouseDown = false;
+        drawCoor();
+        drawFun();
     });
 	cacheCoor(coorCtx);
     cacheFun(funCtx);
