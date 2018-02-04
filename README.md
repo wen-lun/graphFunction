@@ -5,7 +5,7 @@
 options = {
     width:600,
     height:400,
-    backgroundColor:"white",
+    backgroundColor:"white",//背景色
     /* xStep：横坐标单位与像素的关系，若为 Math.PI/100，则表示每100个像素为1个Math.PI，若为1/50表示每50个像素为1个单位
      * yStep：纵坐标单位与像素的关系，若为 100，则表示每100个像素为1个单位 */
     xStep:1,
@@ -33,11 +33,14 @@ options = {
     vCoorColor:"black",//纵坐标颜色
     coorLineWidth:0.5,//坐标轴线宽
     coorArrowLen:8,//坐标轴箭头长度
+    showGrid:true,//是否显示网格
+    gridColor:"gray",//网格颜色
+    gridLineWidth:0.2,//网格线宽，如果x、y坐标步长(step)大于1，那么步长之内的线宽为一半
     points:[],//要标记的点,格式:{x:x,y:y,showDotted:true|false,mark:'P'} 若不提供y,则系统自动根据函数计算y,默认显示虚线
     markPointLineWidth:0.5,//描点的虚线线宽
     markPointRadius:3,//描点 点的半径
     markPointColor:"brown",//描点颜色
-    markPointFontSize:16,
+    markPointFontSize:14,
     //定义域，如果x!=0,函数返回x!=0即可
     domain:function (x) {
         return true;
