@@ -6,22 +6,32 @@ options = {
     width:600,
     height:400,
     backgroundColor:"white",//背景色
-    /* xStep：横坐标单位与像素的关系，若为 Math.PI/100，则表示每100个像素为1个Math.PI，若为1/50表示每50个像素为1个单位
-     * yStep：纵坐标单位与像素的关系，若为 100，则表示每100个像素为1个单位 */
-    xStep:1,
-    yStep:1,
     animation:true,//是否显示动画
     xUnit:{ //x轴单位
-        pixel:null,//一个单位有多少像素
+        pixel:100,//一个单位有多少像素
         value:1,//单位值
-        suffix:"",//后缀
-        step:1,//步长，多少步才显示单位
+        mince:1,//将一个单位细分为多少，值越大，精度越高，默认为1，即不细分
+        step:1,//步长，多少步显示一次单位值
+          convert:function (value) {//单位转换
+            return value;
+          },
+          parse:function (value) {//单位逆转换
+            return value;
+          },
+        suffix:"",//单位后缀
     },
     yUnit:{ //y轴单位
-        pixel:null,//一个单位有多少像素
+        pixel:100,//一个单位有多少像素
         value:1,//单位值
-        suffix:"",//后缀
+          mince:1,
         step:1,//步长，多少步才显示单位
+          convert:function (value) {//单位转换
+              return value;
+          },
+          parse:function (value) {//单位逆转换
+              return value;
+          },
+          suffix:"",//单位后缀
     },
     showScale:true,//是否显示刻度
     scaleLen:5,//刻度长度

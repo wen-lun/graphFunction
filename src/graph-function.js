@@ -18,22 +18,32 @@ function GraphFunction(options) {
 		width:600,
 		height:400,
 		backgroundColor:"white",//背景色
-		/* xStep：横坐标单位与像素的关系，若为 Math.PI/100，则表示每100个像素为1个Math.PI，若为1/50表示每50个像素为1个单位
-		 * yStep：纵坐标单位与像素的关系，若为 100，则表示每100个像素为1个单位 */
-		xStep:1,
-		yStep:1,
 		animation:true,//是否显示动画
 		xUnit:{ //x轴单位
-			pixel:null,//一个单位有多少像素
+			pixel:100,//一个单位有多少像素
 			value:1,//单位值
-			suffix:"",//后缀
-			step:1,//步长，多少步才显示单位
+			mince:1,//将一个单位细分为多少，值越大，精度越高，默认为1，即不细分
+			step:1,//步长，多少步显示一次单位值
+            convert:function (value) {//单位转换
+				return value;
+            },
+            parse:function (value) {//单位逆转换
+				return value;
+            },
+			suffix:"",//单位后缀
 		},
 		yUnit:{ //y轴单位
-			pixel:null,//一个单位有多少像素
+			pixel:100,//一个单位有多少像素
 			value:1,//单位值
-			suffix:"",//后缀
+            mince:1,
 			step:1,//步长，多少步才显示单位
+            convert:function (value) {//单位转换
+                return value;
+            },
+            parse:function (value) {//单位逆转换
+                return value;
+            },
+            suffix:"",//单位后缀
 		},
 		showScale:true,//是否显示刻度
 		scaleLen:5,//刻度长度
@@ -66,27 +76,36 @@ function GraphFunction(options) {
 			return x;
 		}
 	};
+
+	options.xUnit = Object.assign({},defaults.xUnit,options.xUnit);
+	options.yUnit = Object.assign({},defaults.yUnit,options.yUnit);
 	var opts = Object.assign({},defaults,options);
 	var canvas = opts.canvas;
 	var isMouseDown = false;//记录鼠标是否按下
 	if(!canvas||canvas.tagName.toLowerCase()!=="canvas") throw new Error("dom isn't canvas!");
-	canvas.width = opts.width;
-	canvas.height = opts.height;
-	canvas.style.width = opts.width+"px";
-	canvas.style.height = opts.height+"px";
-	var ctx = canvas.getContext("2d");
 
+	var ctx = canvas.getContext("2d");
 	//用来缓存坐标轴
 	var coorCanvas = document.createElement("canvas");
-	coorCanvas.width = opts.width;
-	coorCanvas.height = opts.height;
 	var coorCtx = coorCanvas.getContext("2d");
 
     //用来缓存函数曲线及标记点
     var funCanvas = document.createElement("canvas");
-    funCanvas.width = opts.width;
-    funCanvas.height = opts.height;
     var funCtx = funCanvas.getContext("2d");
+
+    /**
+     * 设置画布的宽高
+     */
+    var setCanvasWH = function () {
+        canvas.width = opts.width;
+        canvas.height = opts.height;
+        canvas.style.width = opts.width+"px";
+        canvas.style.height = opts.height+"px";
+        coorCanvas.width = opts.width;
+        coorCanvas.height = opts.height;
+        funCanvas.width = opts.width;
+        funCanvas.height = opts.height;
+    };
 
 	/**
 	 * 画布中心坐标转画布坐标
@@ -105,7 +124,7 @@ function GraphFunction(options) {
 	 */
 	var pixel2value = function (pixel,unit) {
 		var unitValue = unit.value||1;
-		return ((pixel/unit.pixel)*unitValue).toFixed(2);
+		return ((pixel/unit.pixel)*unitValue).toFixed(2)*1;
 	};
 
 	/**
@@ -133,12 +152,17 @@ function GraphFunction(options) {
 		var scaleLen = opts.scaleLen;
 		var xUnit = opts.xUnit;
 		var yUnit = opts.yUnit;
-		var xUnitValue = xUnit.value||1;
-		var yUnitValue = yUnit.value||1;
-		var xUnitSuffix = xUnit.suffix||"";
-		var yUnitSuffix = yUnit.suffix||"";
+		var xUnitPixel = xUnit.pixel;
+		var yUnitPixel = yUnit.pixel;
 		var xUnitStep = xUnit.step||1;
 		var yUnitStep = yUnit.step||1;
+		var xUnitConvert = xUnit.convert;
+		var yUnitConvert = yUnit.convert;
+		var xUnitMince = xUnit.mince;
+		var yUnitMince = yUnit.mince;
+		var xUnitSuffix = xUnit.suffix;
+		var yUnitSuffix = yUnit.suffix;
+
 		var start = null,end = null;
 		//已知箭头长度，算出箭头直角边的长度
 		var rightAngle = arrowLen * Math.sin(Math.PI / 4);
@@ -165,9 +189,9 @@ function GraphFunction(options) {
 		var textCoor = null;
 
 		//画刻度
-		if(opts.showScale&&xUnit.pixel>0){
+		if(opts.showScale&&xUnitPixel/xUnitMince>0){
 			var scale=1;
-			for(var i=0;i<widthHalf;i+=xUnit.pixel){
+			for(var i=0;i<widthHalf;i+=xUnitPixel/xUnitMince){
 				if(i===0) continue;
 				ctx.beginPath();
 				//正轴方向
@@ -180,13 +204,14 @@ function GraphFunction(options) {
 				//显示刻度文本
 				if(scale%xUnitStep===0){
 					//正轴方向
-					scaleText = pixel2value(i,xUnit)+xUnitSuffix;
+					var value = pixel2value(i,xUnit);
+					scaleText = xUnitConvert(value)+xUnitSuffix;
 					textWidth = ctx.measureText(scaleText).width;
 					textCoor = centerCoor2CanvasCoor(i-textWidth*0.5,-opts.scaleFontSize);
 					ctx.fillText(scaleText,textCoor.x,textCoor.y);
 
 					//负轴方向
-					scaleText = -pixel2value(i,xUnit)+xUnitSuffix;
+                    scaleText = xUnitConvert(-value)+xUnitSuffix;
 					textWidth = ctx.measureText(scaleText).width;
 					textCoor = centerCoor2CanvasCoor(-(i+textWidth*0.5),-opts.scaleFontSize);
 					ctx.fillText(scaleText,textCoor.x,textCoor.y);
@@ -229,9 +254,9 @@ function GraphFunction(options) {
 		ctx.stroke();
 
 		//画刻度
-		if(opts.showScale&&yUnit.pixel>0){
+		if(opts.showScale&&yUnitPixel/yUnitMince>0){
 			var scale = 1;
-			for(var i=0;i<heightHalf;i+=yUnit.pixel){
+			for(var i=0;i<heightHalf;i+=yUnitPixel/yUnitMince){
 				if(i===0) continue;
 				ctx.beginPath();
 				//正轴方向
@@ -243,13 +268,14 @@ function GraphFunction(options) {
 				//显示刻度文本
 				if(scale%yUnitStep===0){
 					//正轴方向
-					scaleText = pixel2value(i,yUnit)+yUnitSuffix;
+                    var value = pixel2value(i,yUnit);
+                    scaleText = yUnitConvert(value)+yUnitSuffix;
 					textWidth = ctx.measureText(scaleText).width;
 					textCoor = centerCoor2CanvasCoor(-textWidth-4,i-opts.scaleFontSize*0.5);
 					ctx.fillText(scaleText,textCoor.x,textCoor.y);
 
 					//负轴方向
-					scaleText = -pixel2value(i,yUnit)+yUnitSuffix;
+                    scaleText = yUnitConvert(-value)+yUnitSuffix;
 					textWidth = ctx.measureText(scaleText).width;
 					textCoor = centerCoor2CanvasCoor(-textWidth-4,-(i+opts.scaleFontSize*0.5));
 					ctx.fillText(scaleText,textCoor.x,textCoor.y);
@@ -299,13 +325,14 @@ function GraphFunction(options) {
 		ctx.drawImage(coorCanvas,0,0,opts.width,opts.height);
 	};
 
-	/**
-	 * 缓存函数曲线
-	 * @param ctx
-	 * @param anim
-	 * @param clear
-	 */
-	var cacheFun = function (ctx,anim=false,clear = false) {
+    /**
+     * 缓存函数曲线
+     * @param ctx
+     * @param anim
+     * @param clear
+     * @param isParse
+     */
+	var cacheFun = function (ctx,anim=false,clear = false,isParse = false) {
 
 		if(clear){
 			//清除画布
@@ -316,14 +343,21 @@ function GraphFunction(options) {
 		//x坐标从0处开始，分别向正轴和负轴绘制函数图像
 		var i = 0;
 
+        var xUnitConvert = opts.xUnit.convert;
+        var yUnitConvert = opts.yUnit.convert;
+
 		/*根据x坐标绘制一小段线段*/
-		var drawLine = function (i) {
-			var y = opts.yStep*fun(i*opts.xStep);
-            if(!opts.range(pixel2value(y,opts.yUnit))) return;
-			var start = centerCoor2CanvasCoor(i,y);
-			if(i<opts.width*0.5&&opts.domain(i*opts.xStep)){
-				y = opts.yStep*fun((i+1)*opts.xStep);
-				var end = centerCoor2CanvasCoor(i+1,y);
+		var drawLine = function (x) {
+			var xValue = pixel2value(x,opts.xUnit);
+			if(!opts.domain(xUnitConvert(xValue))) return;
+
+            var y = value2pixel(fun(xValue),opts.yUnit);
+            if(!opts.range(yUnitConvert(pixel2value(y,opts.yUnit)))) return;
+			var start = centerCoor2CanvasCoor(x,y);
+            if(i<opts.width*0.5){
+                var xValue = pixel2value(x+1,opts.xUnit);
+				y = value2pixel(fun(xValue),opts.yUnit);
+				var end = centerCoor2CanvasCoor(x+1,y);
 				ctx.beginPath();
 				ctx.drawLine(start,end);
 				ctx.stroke();
@@ -334,11 +368,6 @@ function GraphFunction(options) {
 			var animation = function () {
 				ctx.strokeStyle = opts.color;
 				if(i>=opts.width*0.5) return;
-				if(!opts.domain(i*opts.xStep)) {
-					i++;
-					setTimeout(animation,0);
-					return;
-				}
 				setTimeout(animation,0);
 				//画x正轴部分
 				drawLine(i);
@@ -350,9 +379,6 @@ function GraphFunction(options) {
 		}else{
 			ctx.strokeStyle = opts.color;
 			for(;i<opts.width*0.5;i++){
-				if(!opts.domain(i*opts.xStep)) {
-					continue;
-				}
 				//画x正轴部分
 				drawLine(i);
 				//画x负轴部分
@@ -364,6 +390,12 @@ function GraphFunction(options) {
         var points = opts.points||[];
         for(var i=0;i<points.length;i++){
             var p = points[i];
+            if(isParse){
+				var xUnitParse = opts.xUnit.parse;
+				var yUnitParse = opts.yUnit.parse;
+				p.x = xUnitParse(p.x);
+				if(p.y) yUnitParse(p.y);
+			}
 			markPoint(ctx,p);
         }
 	};
@@ -372,7 +404,7 @@ function GraphFunction(options) {
      * 画函数曲线
      */
     var drawFun = function (refresh=false,anim=false) {
-        if(refresh) cacheFun(funCtx,anim);//更新缓存的坐标
+        if(refresh) cacheFun(funCtx,anim,true);//更新缓存的坐标
         ctx.drawImage(funCanvas,0,0,opts.width,opts.height);
     };
 
@@ -388,24 +420,30 @@ function GraphFunction(options) {
 		var heightHalf = opts.height*0.5;
 		var widthHalf = opts.width*0.5;
 
-        ctx.save();
-        ctx.strokeStyle = opts.markPointColor;
-        ctx.lineWidth = opts.markPointLineWidth;
-        ctx.fillStyle = opts.markPointColor;
-        ctx.font = opts.markPointFontSize + "px 微软雅黑";
-        ctx.setLineDash([3, 3]);
-        if (p.x === undefined) return;
+        var xUnitConvert = opts.xUnit.convert;
+        var yUnitConvert = opts.yUnit.convert;
+
+        //若x不在定义域内，返回
+        if (p.x === undefined||!opts.domain(xUnitConvert(p.x))) return;
         //先把坐标值转换为像素值
         var x = value2pixel(p.x, opts.xUnit);
-        p.y = p.y || opts.fun(x * opts.xStep).toFixed(2);
-        //若y不在值域内，终止本次循环
-        if (!opts.range(p.y)) return;
+        p.y = p.y || opts.fun(p.x).toFixed(2);
+        //若y不在值域内，返回
+        if (!opts.range(yUnitConvert(p.y))) return;
 
         if (p.y == 0) p.y = 0;//保留小数位后，如果y为0.00，就赋值为0
         if (p.y - Math.floor(p.y) == 0) p.y = Math.floor(p.y);//如果y的小数部分为0，那么就抛弃小数部分
         p.mark = p.mark || "P";
         var y = value2pixel(p.y, opts.yUnit);
         ctx.beginPath();
+        ctx.save();
+        ctx.strokeStyle = opts.markPointColor;
+        ctx.lineWidth = opts.markPointLineWidth;
+        ctx.fillStyle = opts.markPointColor;
+        ctx.font = opts.markPointFontSize + "px 微软雅黑";
+        ctx.setLineDash([3, 3]);
+
+
         var coor = centerCoor2CanvasCoor(x, y);
         if (p.showDotted === undefined || p.showDotted !== false) {
             ctx.drawLine(centerCoor2CanvasCoor(0, y), coor);
@@ -420,8 +458,8 @@ function GraphFunction(options) {
 			ctx.fill();
 		}
 
-        var xText = p.x + (opts.xUnit.suffix || "");
-        var yText = p.y + (opts.yUnit.suffix || "");
+        var xText = xUnitConvert(p.x) + opts.xUnit.suffix;
+        var yText = yUnitConvert(p.y) + opts.yUnit.suffix;
         var coorText = p.mark + "( " + xText + "，" + yText + " )";
         var coorTextWidth = ctx.measureText(coorText).width;
         var autoY = y;
@@ -441,6 +479,17 @@ function GraphFunction(options) {
         ctx.fillText(coorText, coor.x + 5, coor.y - 5);
         ctx.restore();
 	};
+
+    /**
+	 * 根据新的options重绘
+     * @param options
+     */
+	this.invalidate = function (options) {
+		opts = Object.assign({},opts,options);
+		setCanvasWH();
+		drawCoor(true);
+		drawFun(true);
+    };
 
     /**
 	 * 添加鼠标移动事件，然后根据鼠标的x坐标来描点
@@ -469,7 +518,8 @@ function GraphFunction(options) {
         drawCoor();
         drawFun();
     });
+	setCanvasWH();
 	cacheCoor(coorCtx);
-    cacheFun(funCtx);
+    cacheFun(funCtx,false,false,true);
     show();
 }
