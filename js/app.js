@@ -7,6 +7,7 @@ new GraphFunction({
     canvas: document.getElementById("canvas1"),
     width: 600,
     height: 500,
+    showGrid:false,//显示网格
     xStep: Math.PI / 200,//横坐标表示每200像素为一个π
     yStep: 200,//纵坐标表示每200个像素为一个单位1
     xUnit: {
@@ -16,16 +17,18 @@ new GraphFunction({
         step: 1,//步长，表示每隔1个单位，显示一次刻度的值
     },
     yUnit: {
-        pixel: 200,
+        pixel: 200/10,
+        value:1/10,
+        step:2
     },
     //标记点,若不指定y,那么y系统自动根据函数计算，默认显示虚线，默认点符号为“P”
-    points: [{x: 0.25, mark: 'P1'}, {x: 0.45, showDotted: false}, {x: 1}, {x: -1 / 2}, {x: -1, y: -0.6}],
+    points: [ {x: 0.45, showDotted: false}],
     color: "purple",//函数曲线颜色，默认黑色
     vCoorColor: "red",//纵坐标颜色，默认黑色
     hCoorColor: "blue",//横坐标颜色，默认黑色
     fun: x => Math.sin(x),//要绘制的函数表达式：y = sin(x)，默认函数为y = x
     range:y=>{ //值域
-        return y>0.6||y<-0.3;
+        return y>0.3||y<-0.3;
     }
 });
 
@@ -43,10 +46,12 @@ new GraphFunction({
         step: 1,//步长，表示每隔1个单位，显示一次刻度的值
     },
     yUnit: {
-        pixel: 200,
+        pixel: 200/10,
+        value:1/10,
+        step:2
     },
     //标记点,若不指定y,那么y系统自动根据函数计算，默认显示虚线，默认点符号为“P”
-    points: [{x: 0.25, mark: 'P1'}, {x: 0.45, showDotted: false}, {x: 1}, {x: -1 / 2}, {x: -1, y: -0.6}],
+    points: [{x: 1, mark: 'P1'}],
     color: "purple",//函数曲线颜色，默认黑色
     vCoorColor: "red",//纵坐标颜色，默认黑色
     hCoorColor: "blue",//横坐标颜色，默认黑色

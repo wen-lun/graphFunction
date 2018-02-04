@@ -45,11 +45,14 @@ function GraphFunction(options) {
 		vCoorColor:"black",//纵坐标颜色
 		coorLineWidth:0.5,//坐标轴线宽
 		coorArrowLen:8,//坐标轴箭头长度
+		showGrid:true,//是否显示网格
+		gridColor:"gray",//网格颜色
+		gridLineWidth:0.2,//网格线宽，如果x、y坐标步长(step)大于1，那么步长之内的线宽为一半
 		points:[],//要标记的点,格式:{x:x,y:y,showDotted:true|false,mark:'P'} 若不提供y,则系统自动根据函数计算y,默认显示虚线
 		markPointLineWidth:0.5,//描点的虚线线宽
 		markPointRadius:3,//描点 点的半径
 		markPointColor:"brown",//描点颜色
-		markPointFontSize:16,
+		markPointFontSize:14,
 		//定义域，如果x!=0,函数返回x!=0即可
 		domain:function (x) {
 			return true;
@@ -78,6 +81,12 @@ function GraphFunction(options) {
 	coorCanvas.height = opts.height;
 	var coorCtx = coorCanvas.getContext("2d");
 
+    //用来缓存函数曲线及标记点
+    var funCanvas = document.createElement("canvas");
+    funCanvas.width = opts.width;
+    funCanvas.height = opts.height;
+    var funCtx = funCanvas.getContext("2d");
+
 	/**
 	 * 画布中心坐标转画布坐标
 	 * @param x0
@@ -95,7 +104,7 @@ function GraphFunction(options) {
 	 */
 	var pixel2value = function (pixel,unit) {
 		var unitValue = unit.value||1;
-		return (pixel/unit.pixel)*unitValue;
+		return ((pixel/unit.pixel)*unitValue).toFixed(2);
 	};
 
 	/**
@@ -181,6 +190,18 @@ function GraphFunction(options) {
 					textCoor = centerCoor2CanvasCoor(-(i+textWidth*0.5),-opts.scaleFontSize);
 					ctx.fillText(scaleText,textCoor.x,textCoor.y);
 				}
+
+                //画横坐标上的网格
+                if(opts.showGrid){
+                    ctx.save();
+                    ctx.strokeStyle = opts.gridColor;
+                    ctx.lineWidth = scale%xUnitStep===0?opts.gridLineWidth:opts.gridLineWidth*0.5;
+                    ctx.beginPath();
+                    ctx.drawLine(centerCoor2CanvasCoor(i,heightHalf),centerCoor2CanvasCoor(i,-heightHalf));
+                    ctx.drawLine(centerCoor2CanvasCoor(-i,heightHalf),centerCoor2CanvasCoor(-i,-heightHalf));
+                    ctx.stroke();
+                    ctx.restore();
+                }
 				scale++;
 			}
 		}
@@ -232,6 +253,18 @@ function GraphFunction(options) {
 					textCoor = centerCoor2CanvasCoor(-textWidth-4,-(i+opts.scaleFontSize*0.5));
 					ctx.fillText(scaleText,textCoor.x,textCoor.y);
 				}
+
+				//画纵坐标上的网格
+				if(opts.showGrid){
+					ctx.save();
+					ctx.strokeStyle = opts.gridColor;
+					ctx.lineWidth = scale%yUnitStep===0?opts.gridLineWidth:opts.gridLineWidth*0.5;
+					ctx.beginPath();
+                    ctx.drawLine(centerCoor2CanvasCoor(-widthHalf,i),centerCoor2CanvasCoor(widthHalf,i));
+                    ctx.drawLine(centerCoor2CanvasCoor(-widthHalf,-i),centerCoor2CanvasCoor(widthHalf,-i));
+					ctx.stroke();
+					ctx.restore();
+				}
 				scale++;
 			}
 		}
@@ -261,21 +294,22 @@ function GraphFunction(options) {
 	 * 画坐标轴
 	 */
 	var drawCoor = function (refresh=false) {
-		if(refresh) cacheCoor();//更新缓存的坐标
+		if(refresh) cacheCoor(coorCtx);//更新缓存的坐标
 		ctx.drawImage(coorCanvas,0,0,opts.width,opts.height);
 	};
 
 	/**
-	 * 画函数曲线
+	 * 缓存函数曲线
+	 * @param ctx
 	 * @param anim
-	 * @param refresh
+	 * @param clear
 	 */
-	var draw = function (anim=false,refresh = false) {
+	var cacheFun = function (ctx,anim=false,clear = false) {
 
-		//清除画布
-		ctx.clearRect(0,0,opts.width,opts.height);
-
-		drawCoor(refresh);
+		if(clear){
+			//清除画布
+			ctx.clearRect(0,0,opts.width,opts.height);
+		}
 
 		var fun = opts.fun;
 		//x坐标从0处开始，分别向正轴和负轴绘制函数图像
@@ -325,49 +359,103 @@ function GraphFunction(options) {
 			}
 		}
 
-		markPoint(ctx);
+		//标记点
+        var points = opts.points||[];
+        for(var i=0;i<points.length;i++){
+            var p = points[i];
+			markPoint(ctx,p);
+        }
 	};
+
+    /**
+     * 画函数曲线
+     */
+    var drawFun = function (refresh=false,anim=false) {
+        if(refresh) cacheFun(funCtx,anim);//更新缓存的坐标
+        ctx.drawImage(funCanvas,0,0,opts.width,opts.height);
+    };
+
+	var show = function () {
+		drawCoor();
+		cacheFun(ctx,opts.animation);
+    };
 
 	/**
 	 * 标记点
 	 */
-	var markPoint = function (ctx) {
-		ctx.save();
-		ctx.strokeStyle = opts.markPointColor;
-		ctx.lineWidth = opts.markPointLineWidth;
-		ctx.fillStyle = opts.markPointColor;
-		ctx.font = opts.markPointFontSize+"px 微软雅黑";
-		ctx.setLineDash([3, 3]);
-		var points = opts.points||[];
-		for(var i=0;i<points.length;i++){
-			var p = points[i];
-			if(p.x===undefined) continue;
-			//先把坐标值转换为像素值
-			var x = value2pixel(p.x,opts.xUnit);
-			p.y = p.y || opts.fun(x * opts.xStep).toFixed(2);
-			if(p.y==0) p.y = 0;//保留小数位后，如果y为0.00，就赋值为0
-			if(p.y-Math.floor(p.y)==0) p.y = Math.floor(p.y);//如果y的小数部分为0，那么就抛弃小数部分
-			p.mark = p.mark || "P";
-			var y = value2pixel(p.y,opts.yUnit);
-			ctx.beginPath();
+	var markPoint = function (ctx,p) {
+		var heightHalf = opts.height*0.5;
+		var widthHalf = opts.width*0.5;
 
-			var coor = centerCoor2CanvasCoor(x,y);
-			if(p.showDotted===undefined||p.showDotted!==false){
-				ctx.drawLine(centerCoor2CanvasCoor(0,y),coor);
-				ctx.drawLine(centerCoor2CanvasCoor(x,0),coor);
-			}
+        ctx.save();
+        ctx.strokeStyle = opts.markPointColor;
+        ctx.lineWidth = opts.markPointLineWidth;
+        ctx.fillStyle = opts.markPointColor;
+        ctx.font = opts.markPointFontSize + "px 微软雅黑";
+        ctx.setLineDash([3, 3]);
+        if (p.x === undefined) return;
+        //先把坐标值转换为像素值
+        var x = value2pixel(p.x, opts.xUnit);
+        p.y = p.y || opts.fun(x * opts.xStep).toFixed(2);
+        //若y不在值域内，终止本次循环
+        if (!opts.range(p.y)) return;
 
-			ctx.stroke();
+        if (p.y == 0) p.y = 0;//保留小数位后，如果y为0.00，就赋值为0
+        if (p.y - Math.floor(p.y) == 0) p.y = Math.floor(p.y);//如果y的小数部分为0，那么就抛弃小数部分
+        p.mark = p.mark || "P";
+        var y = value2pixel(p.y, opts.yUnit);
+        ctx.beginPath();
+        var coor = centerCoor2CanvasCoor(x, y);
+        if (p.showDotted === undefined || p.showDotted !== false) {
+            ctx.drawLine(centerCoor2CanvasCoor(0, y), coor);
+            ctx.drawLine(centerCoor2CanvasCoor(x, 0), coor);
+        }
+        ctx.stroke();
+
+        //y的值没有超出画布高度，才有必要花点
+        if(y>-heightHalf||y<heightHalf){
 			ctx.beginPath();
-			ctx.arc(coor.x,coor.y,opts.markPointRadius,0,2*Math.PI);
+			ctx.arc(coor.x, coor.y, opts.markPointRadius, 0, 2 * Math.PI);
 			ctx.fill();
-			var xText =  p.x+(opts.xUnit.suffix||"");
-			var yText =  p.y+(opts.yUnit.suffix||"");
-			ctx.fillText(p.mark+"( "+xText+"，"+yText+" )",coor.x+5,coor.y-5);
 		}
-		ctx.restore();
+
+        var xText = p.x + (opts.xUnit.suffix || "");
+        var yText = p.y + (opts.yUnit.suffix || "");
+        var coorText = p.mark + "( " + xText + "，" + yText + " )";
+        var coorTextWidth = ctx.measureText(coorText).width;
+        var autoY = y;
+        //若y超出了画布高度，那么要把显示的坐标信息的y坐标固定到画布边缘
+        if(y>heightHalf - 20){
+            autoY = heightHalf - 20;
+        }
+        if(y<-heightHalf){
+        	autoY = -heightHalf;
+		}
+		var autoX = x;
+        //若x坐标加上文本的宽度超出了边缘，那么重新调整x坐标
+        if(x + coorTextWidth>widthHalf-10){
+        	autoX = widthHalf - coorTextWidth-10;
+		}
+        var coor = centerCoor2CanvasCoor(autoX, autoY);
+        ctx.fillText(coorText, coor.x + 5, coor.y - 5);
+        ctx.restore();
 	};
 
+    /**
+	 * 添加鼠标移动事件，然后根据鼠标的x坐标来描点
+     */
+	canvas.addEventListener("mousemove",function (e) {
+		var offsetX = e.offsetX;
+		var widthHalf = opts.width*0.5;
+		//计算出x坐标
+		var x = pixel2value(offsetX - widthHalf,opts.xUnit);
+
+        drawCoor();
+		drawFun();
+		//标记点
+		markPoint(ctx,{x:x});
+    });
 	cacheCoor(coorCtx);
-	draw(opts.animation);
+    cacheFun(funCtx);
+    show();
 }
