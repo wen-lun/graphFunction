@@ -75,27 +75,33 @@ new GraphFunction({
     canvas: document.getElementById("canvas1"),
     width: 600,
     height: 500,
-    xStep: Math.PI / 200,//横坐标表示每200像素为一个π
-    yStep: 200,//纵坐标表示每200个像素为一个单位1
     xUnit: {
-        pixel: 200 / 4,//表示每200/4 = 50像素为一个单位，
-        value: 1 / 4,//表示一个单位的值为1/4 = 0.25
-        suffix: "π",//单位后缀
-        step: 1,//步长，表示每隔1个单位，显示一次刻度的值
+        pixel: 100,//表示一个单位有100个像素,默认值100
+        value: Math.PI,//表示一个单位的值为一个π,默认为1
+        step:2,//步长，多少步显示一次单位值，默认为1
+        mince:4,//将一个单位细分为4份，值越大，精度越高，默认为1，即不细分
+        convert:value=>(value/Math.PI).toFixed(2),//转换单位显示的格式，这里将单位转换为 π的倍数 的格式
+        parse:value=>value*Math.PI,//单位逆转换,作用是在标记点时，转换单位
+        suffix:"π"//单位后缀
     },
     yUnit: {
         pixel: 200,
+        mince:12,
+        step:2,
+        value:1,
     },
     //标记点,若不指定y,那么y系统自动根据函数计算，默认显示虚线，默认点符号为“P”
-    points: [{x: 0.25, mark: 'P1'}, {x: 0.45, showDotted: false}, {x: 1}, {x: -1 / 2}, {x: -1, y: -0.6}],
+    points: [ {x: 1,showDotted: false}],
     color: "purple",//函数曲线颜色，默认黑色
     vCoorColor: "red",//纵坐标颜色，默认黑色
     hCoorColor: "blue",//横坐标颜色，默认黑色
     fun: x => Math.sin(x),//要绘制的函数表达式：y = sin(x)，默认函数为y = x
+    domain:x=>x>-2,//定义域
+    range:y=>y>=-0.9&&y<0.9//值域
 });
 ```
 * result：   
-![](img/1.jpg) 
+![](img/1.png) 
 
 ##### 2.余弦函数
 * code
@@ -104,19 +110,23 @@ new GraphFunction({
     canvas: document.getElementById("canvas2"),
     width: 600,
     height: 500,
-    xStep: Math.PI / 200,//横坐标表示每200像素为一个π
-    yStep: 200,//纵坐标表示每200个像素为一个单位1
     xUnit: {
-        pixel: 200 / 4,//表示每200/4 = 50像素为一个单位，
-        value: 1 / 4,//表示一个单位的值为1/4 = 0.25
-        suffix: "π",//单位后缀
-        step: 1,//步长，表示每隔1个单位，显示一次刻度的值
+        pixel: 100,//表示一个单位有100个像素,默认值100
+        value: Math.PI,//表示一个单位的值为一个π,默认为1
+        step:2,//步长，多少步显示一次单位值，默认为1
+        mince:4,//将一个单位细分为4份，值越大，精度越高，默认为1，即不细分
+        convert:value=>(value/Math.PI).toFixed(2),//转换单位显示的格式，这里将单位转换为 π的倍数 的格式
+        parse:value=>value*Math.PI,//单位逆转换,作用是在标记点时，转换单位
+        suffix:"π"
     },
     yUnit: {
         pixel: 200,
+        mince:12,
+        step:2,
+        value:1,
     },
     //标记点,若不指定y,那么y系统自动根据函数计算，默认显示虚线，默认点符号为“P”
-    points: [{x: 0.25, mark: 'P1'}, {x: 0.45, showDotted: false}, {x: 1}, {x: -1 / 2}, {x: -1, y: -0.6}],
+    points: [{x: 1, mark: 'P1'}],
     color: "purple",//函数曲线颜色，默认黑色
     vCoorColor: "red",//纵坐标颜色，默认黑色
     hCoorColor: "blue",//横坐标颜色，默认黑色
@@ -124,7 +134,7 @@ new GraphFunction({
 });
 ```
 * result：   
-![](img/2.jpg) 
+![](img/2.png) 
 
 ##### 3.反比例函数
 * code
@@ -133,17 +143,17 @@ new GraphFunction({
     canvas: document.getElementById("canvas3"),
     width: 600,
     height: 500,
-    xStep: 1 / 50,//横坐标表示每50个像素为1
-    yStep: 50,//纵坐标表示每50个像素为一个单位1
     xUnit: {
-        pixel: 50/10,//表示每50/10 = 5像素为一个单位，值越小，刻度越精细
-        value: 1/10,//表示一个单位的值为1/10 = 0.1
-        step:5,//表示每隔5个单位，显示一次刻度的值
+        pixel: 100,//表示每50/10 = 5像素为一个单位，值越小，刻度越精细
+        value: 1,//表示一个单位的值为1/10 = 0.1
+        mince:4,
+        step:2,
     },
     yUnit: {
-        pixel: 50/10,//表示每50/10 = 5像素为一个单位，值越小，刻度越精细
-        value: 1/10,//表示一个单位的值为1/10 = 0.1
-        step:5,//表示每隔5个单位，显示一次刻度的值
+        pixel: 100,//表示每50/10 = 5像素为一个单位，值越小，刻度越精细
+        value: 1,//表示一个单位的值为1/10 = 0.1
+        mince:4,
+        step:2,
     },
     color: "white",//函数曲线颜色，默认黑色
     vCoorColor: "#ddd",//纵坐标颜色，默认黑色
@@ -158,7 +168,7 @@ new GraphFunction({
 });
 ```
 * result：   
-![](img/3.jpg) 
+![](img/3.png) 
 
 ##### 4.二次函数
 * code
@@ -167,17 +177,17 @@ new GraphFunction({
     canvas: document.getElementById("canvas4"),
     width: 600,
     height: 500,
-    xStep: 1 / 50,//横坐标表示每50个像素为1
-    yStep: 50,//纵坐标表示每50个像素为一个单位1
     xUnit: {
-        pixel: 50/10,//表示每50/10 = 5像素为一个单位，值越小，刻度越精细
-        value: 1/10,//表示一个单位的值为1/10 = 0.1
-        step:5,//表示每隔5个单位，显示一次刻度的值
+        pixel: 100,
+        value: 1,
+        mince:5,
+        step:2,
     },
     yUnit: {
-        pixel: 50/10,//表示每50/10 = 5像素为一个单位，值越小，刻度越精细
-        value: 1/10,//表示一个单位的值为1/10 = 0.1
-        step:5,//表示每隔5个单位，显示一次刻度的值
+        pixel: 50,
+        value: 1,
+        mince:5,
+        step:2,
     },
     color: "brown",//函数曲线颜色，默认黑色
     //标记点,若不指定y,那么y系统自动根据函数计算，默认显示虚线，默认点符号为“P”
@@ -186,7 +196,7 @@ new GraphFunction({
 });
 ```
 * result：   
-![](img/4.jpg) 
+![](img/4.png) 
 
 ##### 5.指数函数
 * code
@@ -195,17 +205,17 @@ new GraphFunction({
     canvas: document.getElementById("canvas5"),
     width: 600,
     height: 500,
-    xStep: 1 / 50,//横坐标表示每50个像素为1
-    yStep: 50,//纵坐标表示每50个像素为一个单位1
     xUnit: {
-        pixel: 50/10,//表示每50/10 = 5像素为一个单位，值越小，刻度越精细
-        value: 1/10,//表示一个单位的值为1/10 = 0.1
-        step:5,//表示每隔5个单位，显示一次刻度的值
+        pixel: 100,
+        value: 1,
+        mince:10,
+        step:5,
     },
     yUnit: {
-        pixel: 50/10,//表示每50/10 = 5像素为一个单位，值越小，刻度越精细
-        value: 1/10,//表示一个单位的值为1/10 = 0.1
-        step:5,//表示每隔5个单位，显示一次刻度的值
+        pixel: 50,
+        value: 1,
+        mince:10,
+        step:5,
     },
     color: "brown",//函数曲线颜色，默认黑色
     //标记点,若不指定y,那么y系统自动根据函数计算，默认显示虚线，默认点符号为“P”
@@ -214,7 +224,7 @@ new GraphFunction({
 });
 ```
 * result：   
-![](img/5.jpg) 
+![](img/5.png) 
 
 ##### 6.对数函数
 * code
@@ -226,13 +236,15 @@ new GraphFunction({
     xStep: 1 / 50,//横坐标表示每50个像素为1
     yStep: 100,//纵坐标表示每50个像素为一个单位1
     xUnit: {
-        pixel: 50/10,//表示每50/10 = 5像素为一个单位，值越小，刻度越精细
-        value: 1/10,//表示一个单位的值为1/10 = 0.1
-        step:5,//表示每隔5个单位，显示一次刻度的值
+        pixel: 100,
+        value: 1,
+        mince:10,
+        step:5,
     },
     yUnit: {
-        pixel: 100/5,
-        value: 1/5,
+        pixel: 100,
+        value: 1,
+        mince:10,
         step:5,
     },
     color: "brown",//函数曲线颜色，默认黑色
@@ -243,5 +255,5 @@ new GraphFunction({
 });
 ```
 * result：   
-![](img/6.jpg) 
+![](img/6.png) 
 
