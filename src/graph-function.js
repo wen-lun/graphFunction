@@ -67,6 +67,8 @@ function GraphFunction(options) {
         markPointRadius: 3,//描点 点的半径
         markPointColor: "brown",//描点颜色
         markPointFontSize: 14,
+        centerX:null,//坐标轴中心点x坐标,坐标系为画布坐标系
+        centerY:null,//坐标轴中心点y坐标,坐标系为画布坐标系
         //定义域，如果x!=0,函数返回x!=0即可
         domain: function (x) {
             return true;
@@ -87,6 +89,7 @@ function GraphFunction(options) {
 	var canvas = opts.canvas;
 	var isMouseDown = false;//记录鼠标是否按下
 	if(!canvas||canvas.tagName.toLowerCase()!=="canvas") throw new Error("dom isn't canvas!");
+    canvas.style.cursor = "pointer";
 
 	var ctx = canvas.getContext("2d");
 	//用来缓存坐标轴
@@ -97,8 +100,25 @@ function GraphFunction(options) {
     var funCanvas = document.createElement("canvas");
     var funCtx = funCanvas.getContext("2d");
 
+    //拖拽坐标系相关
+    var beginDrag = false;//标记是否要开始拖拽
+    var isDrag = false;//标记是否正在拖拽
+    var startOffset = null;//记录上一次拖拽的位置
+    var cx = null;
+    var cy = null;
+
     //坐标轴中心点的位置
     var centerPos = {x:0,y:0};
+
+    /**
+     * 设置坐标轴中心点的坐标，坐标系为画布坐标系
+     * @param x
+     * @param y
+     */
+    var setCenterPos = function (x,y) {
+        centerPos.x = x;
+        centerPos.y = y;
+    };
 
     /**
      * 设置画布的宽高
@@ -113,9 +133,10 @@ function GraphFunction(options) {
         funCanvas.width = opts.width;
         funCanvas.height = opts.height;
 
-        //默认将坐标轴的中心位置放到画布的中心
-        centerPos.x = opts.width*0.5;
-        centerPos.y = opts.height*0.5;
+        //如果没有指定，默认将坐标轴的中心位置放到画布的中心
+        var centerX = cx || opts.centerX || opts.width*0.5;
+        var centerY = cy || opts.centerY || opts.height*0.5;
+        setCenterPos(centerX,centerY);
     };
 
 	/**
@@ -235,7 +256,7 @@ function GraphFunction(options) {
                     ctx.strokeStyle = opts.gridColor;
                     ctx.lineWidth = xUnit.showScale(xUnitConvert(value))?opts.gridLineWidth:opts.gridLineWidth*0.5;
                     ctx.beginPath();
-                    ctx.drawLine(centerCoor2CanvasCoor(i,yStart),centerCoor2CanvasCoor(i,yEnd));
+                    ctx.drawLine(centerCoor2CanvasCoor(i,yStart),centerCoor2CanvasCoor(i,-yEnd));
                     ctx.stroke();
                     ctx.restore();
                 }
@@ -491,10 +512,41 @@ function GraphFunction(options) {
 		drawFun(true);
     };
 
+	//打开拖拽坐标系
+	this.openDrag = function (isOpen) {
+	    if(isOpen===undefined) isOpen = true;
+	    if(isOpen){
+	        cx = centerPos.x;
+	        cy = centerPos.y;
+            canvas.style.cursor = "move";
+        }else{
+	        cx = null;
+	        cy = null;
+            canvas.style.cursor = "pointer";
+        }
+        beginDrag = isOpen;
+    };
+
     /**
 	 * 添加鼠标移动事件，然后根据鼠标的x坐标来描点
      */
-	canvas.addEventListener("mousemove",function (e) {
+	window.addEventListener("mousemove",function (e) {
+
+        //开启了拖拽的话，就不标记点了
+	    if (beginDrag===true){
+            if(!isDrag) return;
+            var xd = e.offsetX - startOffset.x;
+            var yd = e.offsetY - startOffset.y;
+            cx+=xd;
+            cy+=yd;
+            setCenterPos(cx,cy);
+            drawCoor(true);
+            drawFun(true);
+
+            startOffset = {x:e.offsetX,y:e.offsetY};
+	        return;
+        }
+
 		//若鼠标未按下，就不标记点！
 		if(!isMouseDown) return;
 		drawCoor();
@@ -504,16 +556,25 @@ function GraphFunction(options) {
 		//标记点
 		markPoint(ctx,{x:x});
     });
-	canvas.addEventListener("mousedown",function (e) {
-		isMouseDown = true;
+	window.addEventListener("mousedown",function (e) {
+
         drawCoor();
         drawFun();
+        //开启了拖拽的话，就不标记点了
+        if (beginDrag===true){
+            isDrag = true;
+            startOffset = {x:e.offsetX,y:e.offsetY};
+            return;
+        }
+
+		isMouseDown = true;
         //计算出x坐标
         var x = pixel2value(e.offsetX - centerPos.x,opts.xUnit);
         //标记点
         markPoint(ctx,{x:x});
     });
-	canvas.addEventListener("mouseup",function () {
+	window.addEventListener("mouseup",function () {
+	    isDrag = false;
 		isMouseDown = false;
         drawCoor();
         drawFun();
