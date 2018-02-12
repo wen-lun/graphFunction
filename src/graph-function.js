@@ -134,8 +134,14 @@ function GraphFunction(options) {
         funCanvas.height = opts.height;
 
         //如果没有指定，默认将坐标轴的中心位置放到画布的中心
-        var centerX = cx || opts.centerX || opts.width*0.5;
-        var centerY = cy || opts.centerY || opts.height*0.5;
+        var centerX = cx || opts.width*0.5;
+        var centerY = cy || opts.height*0.5;
+        if(opts.centerX!=null){
+            centerX = opts.centerX;
+        }
+        if(opts.centerY!=null){
+            centerY = opts.centerY;
+        }
         setCenterPos(centerX,centerY);
     };
 
@@ -186,7 +192,7 @@ function GraphFunction(options) {
         var aboveHeight = centerPos.y;//上半边的高
         var belowHeight = opts.height - centerPos.y;//下半边的高
         var yStart = aboveHeight;//y坐标轴开始处位置
-        var yEnd = belowHeight;//y坐标轴结束处位置
+        var yEnd = -belowHeight;//y坐标轴结束处位置
 
 		var arrowLen = opts.coorArrowLen;
 		var scaleLen = opts.scaleLen;
@@ -211,13 +217,24 @@ function GraphFunction(options) {
 		ctx.save();
 		ctx.strokeStyle = opts.hCoorColor;
 		ctx.font = opts.scaleFontSize+"px 微软雅黑";
-		ctx.drawLine(centerCoor2CanvasCoor(xStart,0),centerCoor2CanvasCoor(xEnd,0));
+
+        //绘制横坐标轴时，横坐标的y坐标,刻度值及刻度线的y坐标也是这个
+        var y = 0;
+        //如果横坐标要超出屏幕上边了，就让它停在上边
+        if(yStart-10<0){
+            y = yStart-10;
+            //如果横坐标要超出屏幕下边了，就让它停在下边
+        }else if(yEnd+22>0){
+            y = yEnd+22;
+        }
+
+		ctx.drawLine(centerCoor2CanvasCoor(xStart,y),centerCoor2CanvasCoor(xEnd,y));
 
 		//画箭头
-		start = centerCoor2CanvasCoor(xEnd,0);
-		end = centerCoor2CanvasCoor(xEnd - rightAngle, rightAngle);
+		start = centerCoor2CanvasCoor(xEnd,y);
+		end = centerCoor2CanvasCoor(xEnd - rightAngle, y+rightAngle);
 		ctx.drawLine(start,end);
-		end = centerCoor2CanvasCoor(xEnd - rightAngle, -rightAngle);
+		end = centerCoor2CanvasCoor(xEnd - rightAngle, y-rightAngle);
 		ctx.drawLine(start,end);
 		ctx.stroke();
 
@@ -238,7 +255,7 @@ function GraphFunction(options) {
                 sum+=(xUnitPixel/xUnitMince);
                 //画刻度线
                 ctx.beginPath();
-				ctx.drawLine(centerCoor2CanvasCoor(i,0),centerCoor2CanvasCoor(i,scaleLen));
+				ctx.drawLine(centerCoor2CanvasCoor(i,y),centerCoor2CanvasCoor(i,scaleLen+y));
 				ctx.stroke();
 
 				//显示刻度文本
@@ -246,7 +263,7 @@ function GraphFunction(options) {
                 if(xUnit.showScale(xUnitConvert(value))){//如果要显示刻度值，才显示
                     scaleText = xUnitConvert(value)+xUnitSuffix;
 					textWidth = ctx.measureText(scaleText).width;
-					textCoor = centerCoor2CanvasCoor(i-textWidth*0.5,-opts.scaleFontSize);
+					textCoor = centerCoor2CanvasCoor(i-textWidth*0.5,-opts.scaleFontSize+y);
 					ctx.fillText(scaleText,textCoor.x,textCoor.y);
 				}
 
@@ -256,31 +273,38 @@ function GraphFunction(options) {
                     ctx.strokeStyle = opts.gridColor;
                     ctx.lineWidth = xUnit.showScale(xUnitConvert(value))?opts.gridLineWidth:opts.gridLineWidth*0.5;
                     ctx.beginPath();
-                    ctx.drawLine(centerCoor2CanvasCoor(i,yStart),centerCoor2CanvasCoor(i,-yEnd));
+                    ctx.drawLine(centerCoor2CanvasCoor(i,yStart),centerCoor2CanvasCoor(i,yEnd));
                     ctx.stroke();
                     ctx.restore();
                 }
 			}
 		}
 
-
 		ctx.restore();
 		/*=========================画横坐标 end===========================================*/
-
-
 
 		/*=========================画纵坐标 begin===========================================*/
 		ctx.beginPath();
 		ctx.save();
 		ctx.strokeStyle = opts.vCoorColor;
 		ctx.font = opts.scaleFontSize+"px 微软雅黑";
-		ctx.drawLine(centerCoor2CanvasCoor(0,yStart),centerCoor2CanvasCoor(0,-yEnd));
+
+        //绘制纵坐标轴时，纵坐标的x坐标,刻度值及刻度线的x坐标也是这个
+        var x = 0;
+        //如果纵坐标要超出屏幕左边了，就让它停在左边
+        if(xStart+22>0){
+            x = xStart+22;
+        //如果纵坐标要超出屏幕右了，就让它停在右边
+        }else if(xEnd-10<0){
+            x = xEnd-10;
+        }
+		ctx.drawLine(centerCoor2CanvasCoor(x,yStart),centerCoor2CanvasCoor(x,yEnd));
 
 		//画箭头
-		start = centerCoor2CanvasCoor(0,yStart);
-		end = centerCoor2CanvasCoor(rightAngle,yStart - rightAngle);
+		start = centerCoor2CanvasCoor(x,yStart);
+		end = centerCoor2CanvasCoor(x+rightAngle,yStart - rightAngle);
 		ctx.drawLine(start,end);
-		end = centerCoor2CanvasCoor(-rightAngle,yStart - rightAngle);
+		end = centerCoor2CanvasCoor(x-rightAngle,yStart - rightAngle);
 		ctx.drawLine(start,end);
 		ctx.stroke();
 
@@ -295,7 +319,7 @@ function GraphFunction(options) {
 				if(i===0) continue;
 				sum += (yUnitPixel/yUnitMince);
 				ctx.beginPath();
-				ctx.drawLine(centerCoor2CanvasCoor(0,i),centerCoor2CanvasCoor(scaleLen,i));
+				ctx.drawLine(centerCoor2CanvasCoor(x,i),centerCoor2CanvasCoor(scaleLen+x,i));
 				ctx.stroke();
 
 				//显示刻度文本
@@ -303,7 +327,7 @@ function GraphFunction(options) {
 				if(yUnit.showScale(yUnitConvert(value))){
                     scaleText = yUnitConvert(value)+yUnitSuffix;
 					textWidth = ctx.measureText(scaleText).width;
-					textCoor = centerCoor2CanvasCoor(-textWidth-4,i-opts.scaleFontSize*0.5);
+					textCoor = centerCoor2CanvasCoor(-textWidth-4+x,i-opts.scaleFontSize*0.5);
 					ctx.fillText(scaleText,textCoor.x,textCoor.y);
 				}
 
@@ -438,8 +462,9 @@ function GraphFunction(options) {
 	 * 标记点
 	 */
 	var markPoint = function (ctx,p) {
-		var heightHalf = opts.height*0.5;
-		var widthHalf = opts.width*0.5;
+        var topMax = centerPos.y;//上边的边界
+        var bottomMax = centerPos.y - opts.height;//下边的边界
+        var rightMax = opts.width - centerPos.x;//右边的边界
 
         var xUnitConvert = opts.xUnit.convert;
         var yUnitConvert = opts.yUnit.convert;
@@ -473,7 +498,7 @@ function GraphFunction(options) {
         ctx.stroke();
 
         //y的值没有超出画布高度，才有必要花点
-        if(y>-heightHalf||y<heightHalf){
+        if(y>bottomMax&&y<topMax){
 			ctx.beginPath();
 			ctx.arc(coor.x, coor.y, opts.markPointRadius, 0, 2 * Math.PI);
 			ctx.fill();
@@ -485,16 +510,16 @@ function GraphFunction(options) {
         var coorTextWidth = ctx.measureText(coorText).width;
         var autoY = y;
         //若y超出了画布高度，那么要把显示的坐标信息的y坐标固定到画布边缘
-        if(y>heightHalf - 20){
-            autoY = heightHalf - 20;
+        if(y>topMax - 20){
+            autoY = topMax - 20;
         }
-        if(y<-heightHalf){
-        	autoY = -heightHalf;
+        if(y<bottomMax){
+        	autoY = bottomMax;
 		}
 		var autoX = x;
         //若x坐标加上文本的宽度超出了边缘，那么重新调整x坐标
-        if(x + coorTextWidth>widthHalf-10){
-        	autoX = widthHalf - coorTextWidth-10;
+        if(x + coorTextWidth>rightMax-10){
+        	autoX = rightMax - coorTextWidth-10;
 		}
         var coor = centerCoor2CanvasCoor(autoX, autoY);
         ctx.fillText(coorText, coor.x + 5, coor.y - 5);
