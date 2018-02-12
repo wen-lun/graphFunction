@@ -3,66 +3,70 @@
 #### 默认参数
 ```javascript
 options = {
-    width:600,
-    height:400,
-    backgroundColor:"white",//背景色
-    animation:true,//是否显示动画
-    xUnit:{ //x轴单位
-        pixel:100,//一个单位有多少像素
-        value:1,//单位值
-        mince:1,//将一个单位细分为多少，值越大，精度越高，默认为1，即不细分
-        step:1,//步长，多少步显示一次单位值
-          convert:function (value) {//单位转换
-            return value;
+      width: 600,
+      height: 400,
+      backgroundColor: "white",//背景色
+      animation: true,//是否显示动画
+      xUnit: { //x轴单位
+          pixel: 100,//一个单位有多少像素
+          value: 1,//单位值
+          mince: 1,//将一个单位细分为多少，值越大，精度越高，默认为1，即不细分
+          showScale: function (value) { //显示刻度值的条件
+              return true;
           },
-          parse:function (value) {//单位逆转换
-            return value;
-          },
-        suffix:"",//单位后缀
-    },
-    yUnit:{ //y轴单位
-        pixel:100,//一个单位有多少像素
-        value:1,//单位值
-          mince:1,
-        step:1,//步长，多少步才显示单位
-          convert:function (value) {//单位转换
+          convert: function (value) {//单位转换
               return value;
           },
-          parse:function (value) {//单位逆转换
+          parse: function (value) {//单位逆转换
               return value;
           },
-          suffix:"",//单位后缀
-    },
-    showScale:true,//是否显示刻度
-    scaleLen:5,//刻度长度
-    scaleFontSize:12,//刻度字体大小
-    coorTextColor:"black",//坐标轴字体颜色
-    x0yFontSize:18,
-    color:"black",//函数图像颜色
-    hCoorColor:"black",//横坐标颜色
-    vCoorColor:"black",//纵坐标颜色
-    coorLineWidth:0.5,//坐标轴线宽
-    coorArrowLen:8,//坐标轴箭头长度
-    showGrid:true,//是否显示网格
-    gridColor:"gray",//网格颜色
-    gridLineWidth:0.2,//网格线宽，如果x、y坐标步长(step)大于1，那么步长之内的线宽为一半
-    points:[],//要标记的点,格式:{x:x,y:y,showDotted:true|false,mark:'P'} 若不提供y,则系统自动根据函数计算y,默认显示虚线
-    markPointLineWidth:0.5,//描点的虚线线宽
-    markPointRadius:3,//描点 点的半径
-    markPointColor:"brown",//描点颜色
-    markPointFontSize:14,
-    //定义域，如果x!=0,函数返回x!=0即可
-    domain:function (x) {
-        return true;
-    },
-    //值域
-    range:function (y) {
-        return true;
-    },
-    //要绘制的函数
-    fun:function (x) {
-        return x;
-    }
+          suffix: "",//单位后缀
+      },
+      yUnit: { //y轴单位
+          pixel: 100,//一个单位有多少像素
+          value: 1,//单位值
+          mince: 1,
+          showScale: function (value) { //显示刻度值的条件
+              return true;
+          },
+          convert: function (value) {//单位转换
+              return value;
+          },
+          parse: function (value) {//单位逆转换
+              return value;
+          },
+          suffix: "",//单位后缀
+      },
+      showScale: true,//是否显示刻度
+      scaleLen: 5,//刻度长度
+      scaleFontSize: 12,//刻度字体大小
+      coorTextColor: "black",//坐标轴字体颜色
+      x0yFontSize: 18,
+      color: "black",//函数图像颜色
+      hCoorColor: "black",//横坐标颜色
+      vCoorColor: "black",//纵坐标颜色
+      coorLineWidth: 0.5,//坐标轴线宽
+      coorArrowLen: 8,//坐标轴箭头长度
+      showGrid: true,//是否显示网格
+      gridColor: "gray",//网格颜色
+      gridLineWidth: 0.2,//网格线宽，如果x、y坐标步长(step)大于1，那么步长之内的线宽为一半
+      points: [],//要标记的点,格式:{x:x,y:y,showDotted:true|false,mark:'P'} 若不提供y,则系统自动根据函数计算y,默认显示虚线
+      markPointLineWidth: 0.5,//描点的虚线线宽
+      markPointRadius: 3,//描点 点的半径
+      markPointColor: "brown",//描点颜色
+      markPointFontSize: 14,
+      //定义域，如果x!=0,函数返回x!=0即可
+      domain: function (x) {
+          return true;
+      },
+      //值域
+      range: function (y) {
+          return true;
+      },
+      //要绘制的函数
+      fun: function (x) {
+          return x;
+      }
 };
 ```
 
@@ -78,7 +82,7 @@ new GraphFunction({
     xUnit: {
         pixel: 100,//表示一个单位有100个像素,默认值100
         value: Math.PI,//表示一个单位的值为一个π,默认为1
-        step:2,//步长，多少步显示一次单位值，默认为1
+        showScale:value=>value%0.5==0, //显示刻度值的条件
         mince:4,//将一个单位细分为4份，值越大，精度越高，默认为1，即不细分
         convert:value=>(value/Math.PI).toFixed(2),//转换单位显示的格式，这里将单位转换为 π的倍数 的格式
         parse:value=>value*Math.PI,//单位逆转换,作用是在标记点时，转换单位
@@ -87,7 +91,7 @@ new GraphFunction({
     yUnit: {
         pixel: 200,
         mince:12,
-        step:2,
+        showScale:value=>value%0.25==0,
         value:1,
     },
     //标记点,若不指定y,那么y系统自动根据函数计算，默认显示虚线，默认点符号为“P”
@@ -113,7 +117,7 @@ new GraphFunction({
     xUnit: {
         pixel: 100,//表示一个单位有100个像素,默认值100
         value: Math.PI,//表示一个单位的值为一个π,默认为1
-        step:2,//步长，多少步显示一次单位值，默认为1
+        showScale:value=>value%0.5==0,
         mince:4,//将一个单位细分为4份，值越大，精度越高，默认为1，即不细分
         convert:value=>(value/Math.PI).toFixed(2),//转换单位显示的格式，这里将单位转换为 π的倍数 的格式
         parse:value=>value*Math.PI,//单位逆转换,作用是在标记点时，转换单位
@@ -122,7 +126,7 @@ new GraphFunction({
     yUnit: {
         pixel: 200,
         mince:12,
-        step:2,
+        showScale:value=>value%0.25==0,
         value:1,
     },
     //标记点,若不指定y,那么y系统自动根据函数计算，默认显示虚线，默认点符号为“P”
@@ -147,13 +151,13 @@ new GraphFunction({
         pixel: 100,//表示每50/10 = 5像素为一个单位，值越小，刻度越精细
         value: 1,//表示一个单位的值为1/10 = 0.1
         mince:4,
-        step:2,
+        showScale:value=>value%0.5==0,
     },
     yUnit: {
         pixel: 100,//表示每50/10 = 5像素为一个单位，值越小，刻度越精细
         value: 1,//表示一个单位的值为1/10 = 0.1
         mince:4,
-        step:2,
+        showScale:value=>value%0.5==0,
     },
     color: "white",//函数曲线颜色，默认黑色
     vCoorColor: "#ddd",//纵坐标颜色，默认黑色
@@ -181,13 +185,13 @@ new GraphFunction({
         pixel: 100,
         value: 1,
         mince:5,
-        step:2,
+        showScale:value=>value%0.5==0,
     },
     yUnit: {
         pixel: 50,
         value: 1,
         mince:5,
-        step:2,
+        showScale:value=>value%0.5==0,
     },
     color: "brown",//函数曲线颜色，默认黑色
     //标记点,若不指定y,那么y系统自动根据函数计算，默认显示虚线，默认点符号为“P”
@@ -209,13 +213,13 @@ new GraphFunction({
         pixel: 100,
         value: 1,
         mince:10,
-        step:5,
+        showScale:value=>value%0.5==0,
     },
     yUnit: {
         pixel: 50,
         value: 1,
         mince:10,
-        step:5,
+        showScale:value=>value%0.5==0,
     },
     color: "brown",//函数曲线颜色，默认黑色
     //标记点,若不指定y,那么y系统自动根据函数计算，默认显示虚线，默认点符号为“P”
@@ -239,13 +243,13 @@ new GraphFunction({
         pixel: 100,
         value: 1,
         mince:10,
-        step:5,
+        showScale:value=>value%0.5==0,
     },
     yUnit: {
         pixel: 100,
         value: 1,
         mince:10,
-        step:5,
+        showScale:value=>value%0.5==0,
     },
     color: "brown",//函数曲线颜色，默认黑色
     //标记点,若不指定y,那么y系统自动根据函数计算，默认显示虚线，默认点符号为“P”

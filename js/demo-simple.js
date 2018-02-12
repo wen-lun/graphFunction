@@ -10,7 +10,7 @@ new GraphFunction({
     xUnit: {
         pixel: 100,//表示一个单位有100个像素,默认值100
         value: Math.PI,//表示一个单位的值为一个π,默认为1
-        step:2,//步长，多少步显示一次单位值，默认为1
+        showScale:value=>value%0.5==0, //显示刻度值的条件
         mince:4,//将一个单位细分为4份，值越大，精度越高，默认为1，即不细分
         convert:value=>(value/Math.PI).toFixed(2),//转换单位显示的格式，这里将单位转换为 π的倍数 的格式
         parse:value=>value*Math.PI,//单位逆转换,作用是在标记点时，转换单位
@@ -19,7 +19,7 @@ new GraphFunction({
     yUnit: {
         pixel: 200,
         mince:12,
-        step:2,
+        showScale:value=>value%0.25==0,
         value:1,
     },
     //标记点,若不指定y,那么y系统自动根据函数计算，默认显示虚线，默认点符号为“P”
@@ -40,7 +40,7 @@ new GraphFunction({
     xUnit: {
         pixel: 100,//表示一个单位有100个像素,默认值100
         value: Math.PI,//表示一个单位的值为一个π,默认为1
-        step:2,//步长，多少步显示一次单位值，默认为1
+        showScale:value=>value%0.5==0,
         mince:4,//将一个单位细分为4份，值越大，精度越高，默认为1，即不细分
         convert:value=>(value/Math.PI).toFixed(2),//转换单位显示的格式，这里将单位转换为 π的倍数 的格式
         parse:value=>value*Math.PI,//单位逆转换,作用是在标记点时，转换单位
@@ -49,7 +49,7 @@ new GraphFunction({
     yUnit: {
         pixel: 200,
         mince:12,
-        step:2,
+        showScale:value=>value%0.25==0,
         value:1,
     },
     //标记点,若不指定y,那么y系统自动根据函数计算，默认显示虚线，默认点符号为“P”
@@ -69,13 +69,13 @@ new GraphFunction({
         pixel: 100,//表示每50/10 = 5像素为一个单位，值越小，刻度越精细
         value: 1,//表示一个单位的值为1/10 = 0.1
         mince:4,
-        step:2,
+        showScale:value=>value%0.5==0,
     },
     yUnit: {
         pixel: 100,//表示每50/10 = 5像素为一个单位，值越小，刻度越精细
         value: 1,//表示一个单位的值为1/10 = 0.1
         mince:4,
-        step:2,
+        showScale:value=>value%0.5==0,
     },
     color: "white",//函数曲线颜色，默认黑色
     vCoorColor: "#ddd",//纵坐标颜色，默认黑色
@@ -98,13 +98,13 @@ new GraphFunction({
         pixel: 100,
         value: 1,
         mince:5,
-        step:2,
+        showScale:value=>value%0.5==0,
     },
     yUnit: {
         pixel: 50,
         value: 1,
         mince:5,
-        step:2,
+        showScale:value=>value%0.5==0,
     },
     color: "brown",//函数曲线颜色，默认黑色
     //标记点,若不指定y,那么y系统自动根据函数计算，默认显示虚线，默认点符号为“P”
@@ -121,13 +121,13 @@ new GraphFunction({
         pixel: 100,
         value: 1,
         mince:10,
-        step:5,
+        showScale:value=>value%0.5==0,
     },
     yUnit: {
         pixel: 50,
         value: 1,
         mince:10,
-        step:5,
+        showScale:value=>value%0.5==0,
     },
     color: "brown",//函数曲线颜色，默认黑色
     //标记点,若不指定y,那么y系统自动根据函数计算，默认显示虚线，默认点符号为“P”
@@ -146,13 +146,13 @@ new GraphFunction({
         pixel: 100,
         value: 1,
         mince:10,
-        step:5,
+        showScale:value=>value%0.5==0,
     },
     yUnit: {
         pixel: 100,
         value: 1,
         mince:10,
-        step:5,
+        showScale:value=>value%0.5==0,
     },
     color: "brown",//函数曲线颜色，默认黑色
     //标记点,若不指定y,那么y系统自动根据函数计算，默认显示虚线，默认点符号为“P”
