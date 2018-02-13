@@ -31,7 +31,7 @@
         },
         points:[{x:0.75}],
         fun:x=>Math.sin(x),
-        // domain:x=>x>0.5
+        // domain:x=>x>-8&&x<-6||x>3&&x<9
     });
     gf.openDrag();//打开拖拽坐标系
     window.addEventListener("resize",function () { //监听浏览器尺寸变化

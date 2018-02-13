@@ -396,8 +396,7 @@ function GraphFunction(options) {
         var yUnitConvert = opts.yUnit.convert;
 
 		/*根据x坐标绘制一小段线段*/
-		var drawLine = function (x) {
-			var xValue = pixel2value(x,opts.xUnit);
+		var drawLine = function (x,xValue) {
 			if(!opts.domain(xUnitConvert(xValue))) return;
 
             var y = value2pixel(fun(xValue),opts.yUnit);
@@ -415,18 +414,28 @@ function GraphFunction(options) {
 
 		if(anim){
 			var animation = function () {
-				i++;
 				ctx.strokeStyle = opts.color;
 				if(sum>opts.width) return;
+                var xValue = pixel2value(i,opts.xUnit);
+                while(!opts.domain(xUnitConvert(xValue))) {
+                    i++;
+                    sum++;
+                    xValue = pixel2value(i,opts.xUnit);
+                    if(sum>opts.width) {
+                        return;
+                    }
+                }
 				setTimeout(animation,0);
-				drawLine(i);
+				drawLine(i,xValue);
+				i++;
                 sum++;
 			};
 			animation();
 		}else{
 			ctx.strokeStyle = opts.color;
 			for(;sum<opts.width;i++){
-				drawLine(i);
+                var xValue = pixel2value(i,opts.xUnit);
+				drawLine(i,xValue);
 				sum++;
             }
 		}
