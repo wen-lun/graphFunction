@@ -468,6 +468,12 @@ function GraphFunction(options) {
         ctx.drawImage(funCanvas,0,0,opts.width,opts.height);
     };
 
+    /**重新缓存坐标轴和函数曲线 */
+    var reCache = function(){
+        cacheCoor(coorCtx);
+        cacheFun(funCtx,false,true);
+    }
+
 	var show = function () {
 		drawCoor();
 		cacheFun(ctx,opts.animation);
@@ -606,9 +612,16 @@ function GraphFunction(options) {
                 });
                 break;
         }
-        cacheCoor(coorCtx);
-        cacheFun(funCtx,false,true);
+        reCache();
     };
+
+    /**重新加载一段options来显示函数曲线 */
+    this.reload = function(options){
+        options.xUnit = Object.assign({},opts.xUnit,options.xUnit);
+	    options.yUnit = Object.assign({},opts.yUnit,options.yUnit);
+        opts = Object.assign({},opts,options);
+        reCache();
+    }
 
     /**
 	 * 添加鼠标移动事件，然后根据鼠标的x坐标来描点
