@@ -10,10 +10,6 @@
         width:w,
         height:h,
         animation:true,
-        hCoorColor:"blue",
-        vCoorColor:"red",
-        gridColor:"green",
-        color:"purple",
         xUnit:{
             pixel:100,
             value:Math.PI,
@@ -33,7 +29,17 @@
         fun:x=>Math.sin(x),
         // domain:x=>x>-8&&x<-6||x>3&&x<9
     });
-    gf.openDrag();//打开拖拽坐标系
+
+    //描点 or 拖拽
+    document.getElementById("mode").addEventListener("change",function () {
+        gf.openDrag(this.value==1);
+    });
+
+    //样式
+    document.getElementById("theme").addEventListener("change",function () {
+        gf.setTheme(this.value); 
+    });
+
     window.addEventListener("resize",function () { //监听浏览器尺寸变化
         w = window.innerWidth;
         h = window.innerHeight-3;

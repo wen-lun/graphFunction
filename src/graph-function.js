@@ -368,7 +368,8 @@ function GraphFunction(options) {
 	/**
 	 * 画坐标轴
 	 */
-	var drawCoor = function (refresh=false) {
+	var drawCoor = function (refresh) {
+	    if(refresh===undefined) refresh = false;
 		if(refresh) cacheCoor(coorCtx);//更新缓存的坐标
 		ctx.drawImage(coorCanvas,0,0,opts.width,opts.height);
 	};
@@ -380,8 +381,11 @@ function GraphFunction(options) {
      * @param clear
      * @param isParse
      */
-	var cacheFun = function (ctx,anim=false,clear = false,isParse = false) {
+	var cacheFun = function (ctx,anim,clear,isParse) {
 
+	    if(anim===undefined) anim = false;
+	    if(clear===undefined) clear = false;
+	    if(isParse===undefined) isParse = false;
 		if(clear){
 			//清除画布
 			ctx.clearRect(0,0,opts.width,opts.height);
@@ -457,7 +461,9 @@ function GraphFunction(options) {
     /**
      * 画函数曲线
      */
-    var drawFun = function (refresh=false,anim=false) {
+    var drawFun = function (refresh,anim) {
+        if(refresh===undefined) refresh = false;
+        if(anim===undefined) anim = false;
         if(refresh) cacheFun(funCtx,anim,true);//更新缓存的坐标
         ctx.drawImage(funCanvas,0,0,opts.width,opts.height);
     };
@@ -562,6 +568,49 @@ function GraphFunction(options) {
     };
 
     /**
+     * 设置样式主题
+     */
+	this.setTheme = function (theme) {
+        switch (theme){
+            case "light":
+                opts = Object.assign({},opts,{
+                    hCoorColor:"blue",
+                    vCoorColor:"red",
+                    gridColor:"green",
+                    color:"purple",
+                    coorTextColor:"black",
+                    markPointColor:"brown",
+                    backgroundColor:"white"
+                });
+                break;
+            case "dark":
+                opts = Object.assign({},opts,{
+                    hCoorColor:"white",
+                    vCoorColor:"white",
+                    gridColor:"gray",
+                    color:"white",
+                    coorTextColor:"white",
+                    markPointColor:"white",
+                    backgroundColor:"#233"
+                });
+                break;
+            default:
+                opts = Object.assign({},opts,{
+                    hCoorColor:"black",
+                    vCoorColor:"black",
+                    gridColor:"gray",
+                    color:"black",
+                    coorTextColor:"black",
+                    markPointColor:"black",
+                    backgroundColor:"white"
+                });
+                break;
+        }
+        cacheCoor(coorCtx);
+        cacheFun(funCtx,false,true);
+    };
+
+    /**
 	 * 添加鼠标移动事件，然后根据鼠标的x坐标来描点
      */
 	window.addEventListener("mousemove",function (e) {
@@ -573,6 +622,8 @@ function GraphFunction(options) {
             var yd = e.offsetY - startOffset.y;
             cx+=xd;
             cy+=yd;
+
+            
             setCenterPos(cx,cy);
             drawCoor(true);
             drawFun(true);
@@ -590,6 +641,7 @@ function GraphFunction(options) {
 		//标记点
 		markPoint(ctx,{x:x});
     });
+
 	window.addEventListener("mousedown",function (e) {
 
         drawCoor();
@@ -607,6 +659,7 @@ function GraphFunction(options) {
         //标记点
         markPoint(ctx,{x:x});
     });
+
 	window.addEventListener("mouseup",function () {
 	    isDrag = false;
 		isMouseDown = false;
