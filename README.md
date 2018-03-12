@@ -237,8 +237,6 @@ new GraphFunction({
     canvas: document.getElementById("canvas6"),
     width: 600,
     height: 500,
-    xStep: 1 / 50,//横坐标表示每50个像素为1
-    yStep: 100,//纵坐标表示每50个像素为一个单位1
     xUnit: {
         pixel: 100,
         value: 1,

@@ -1,7 +1,7 @@
+"use strict";
 /**
  * Created by VULCAN on 2018/2/4.
  */
-
 (function () {
     var w = window.innerWidth;
     var h = window.innerHeight - 3;
@@ -14,31 +14,27 @@
             pixel: 50,
             value: 1,
             mince: 5,
-            showScale: value => value % 1 == 0,//只有当刻度的值能整除1才显示
-            convert: value => value,
-            parse: value => value,
+            showScale: function (value) { return value % 1 == 0; },
+            convert: function (value) { return value; },
+            parse: function (value) { return value; },
             suffix: "",
         },
         yUnit: {
             pixel: 50,
             mince: 5,
-            showScale: value => value % 1 == 0,//只有当刻度的值能整除1才显示
+            showScale: function (value) { return value % 1 == 0; },
             value: 1,
         },
-        fun: x => x,
+        fun: function (x) { return x; },
     });
-
     //描点 or 拖拽
     document.getElementById("mode").addEventListener("change", function () {
-        gf.openDrag(this.value == 1);
+        gf.openDrag(this.value == "1");
     });
-
     //样式
     document.getElementById("theme").addEventListener("change", function () {
         gf.setTheme(this.value);
     });
-
-
     //函数选择
     document.getElementById("fun").addEventListener("change", function () {
         var opts = {};
@@ -49,20 +45,20 @@
                         pixel: 50,
                         value: 1,
                         mince: 5,
-                        showScale: value => value % 1 == 0,//只有当刻度的值能整除1才显示
-                        convert: value => value,
-                        parse: value => value,
+                        showScale: function (value) { return value % 1 == 0; },
+                        convert: function (value) { return value; },
+                        parse: function (value) { return value; },
                         suffix: "",
                     },
                     yUnit: {
                         pixel: 50,
                         mince: 5,
-                        showScale: value => value % 1 == 0,//只有当刻度的值能整除1才显示
+                        showScale: function (value) { return value % 1 == 0; },
                         value: 1,
                     },
-                    fun: x => x,
-                    domain:x=>true
-                }
+                    fun: function (x) { return x; },
+                    domain: function (x) { return true; }
+                };
                 break;
             case 1:
                 opts = {
@@ -70,20 +66,20 @@
                         pixel: 50,
                         value: 1,
                         mince: 5,
-                        showScale: value => value % 1 == 0,//只有当刻度的值能整除1才显示
-                        convert: value => value,
-                        parse: value => value,
+                        showScale: function (value) { return value % 1 == 0; },
+                        convert: function (value) { return value; },
+                        parse: function (value) { return value; },
                         suffix: "",
                     },
                     yUnit: {
                         pixel: 50,
                         mince: 5,
-                        showScale: value => value % 1 == 0,//只有当刻度的值能整除1才显示
+                        showScale: function (value) { return value % 1 == 0; },
                         value: 1,
                     },
-                    fun: x => x*x,
-                    domain:x=>true
-                }
+                    fun: function (x) { return x * x; },
+                    domain: function (x) { return true; }
+                };
                 break;
             case 2:
                 opts = {
@@ -91,20 +87,20 @@
                         pixel: 50,
                         value: 1,
                         mince: 5,
-                        showScale: value => value % 1 == 0,//只有当刻度的值能整除1才显示
-                        convert: value => value,
-                        parse: value => value,
+                        showScale: function (value) { return value % 1 == 0; },
+                        convert: function (value) { return value; },
+                        parse: function (value) { return value; },
                         suffix: "",
                     },
                     yUnit: {
                         pixel: 50,
                         mince: 5,
-                        showScale: value => value % 1 == 0,//只有当刻度的值能整除1才显示
+                        showScale: function (value) { return value % 1 == 0; },
                         value: 1,
                     },
-                    fun: x => 1/x,
-                    domain:x=>x!=0
-                }
+                    fun: function (x) { return 1 / x; },
+                    domain: function (x) { return x != 0; }
+                };
                 break;
             case 3:
                 opts = {
@@ -112,20 +108,20 @@
                         pixel: 100,
                         value: Math.PI,
                         mince: 4,
-                        showScale: value => value % 1 == 0,//只有当刻度的值能整除1才显示
-                        convert: value => (value / Math.PI).toFixed(2),
-                        parse: value => value * Math.PI,
+                        showScale: function (value) { return value % 1 == 0; },
+                        convert: function (value) { return (value / Math.PI).toFixed(2); },
+                        parse: function (value) { return value * Math.PI; },
                         suffix: "π",
                     },
                     yUnit: {
                         pixel: 200,
                         mince: 2,
-                        showScale: value => value % 1 == 0,//只有当刻度的值能整除1才显示
+                        showScale: function (value) { return value % 1 == 0; },
                         value: 1,
                     },
-                    fun: x => Math.sin(x),
-                    domain:x=>true
-                }
+                    fun: function (x) { return Math.sin(x); },
+                    domain: function (x) { return true; }
+                };
                 break;
             case 4:
                 opts = {
@@ -133,29 +129,27 @@
                         pixel: 100,
                         value: Math.PI,
                         mince: 4,
-                        showScale: value => value % 1 == 0,//只有当刻度的值能整除1才显示
-                        convert: value => (value / Math.PI).toFixed(2),
-                        parse: value => value * Math.PI,
+                        showScale: function (value) { return value % 1 == 0; },
+                        convert: function (value) { return (value / Math.PI).toFixed(2); },
+                        parse: function (value) { return value * Math.PI; },
                         suffix: "π",
                     },
                     yUnit: {
                         pixel: 200,
                         mince: 2,
-                        showScale: value => value % 1 == 0,//只有当刻度的值能整除1才显示
+                        showScale: function (value) { return value % 1 == 0; },
                         value: 1,
                     },
-                    fun: x => Math.cos(x),
-                    domain:x=>true
-                }
+                    fun: function (x) { return Math.cos(x); },
+                    domain: function (x) { return true; }
+                };
                 break;
         }
         gf.reload(opts);
     });
-
-    window.addEventListener("resize", function () { //监听浏览器尺寸变化
+    window.addEventListener("resize", function () {
         w = window.innerWidth;
         h = window.innerHeight - 3;
         gf.invalidate({ width: w, height: h });
     });
 })();
-
