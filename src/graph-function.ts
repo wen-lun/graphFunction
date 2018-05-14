@@ -14,7 +14,7 @@ interface Point {
 	y: number
 }
 
-interface MarkPoint{
+interface MarkPoint {
 	x: number
 	y?: number
 	showDotted?: boolean
@@ -139,7 +139,7 @@ class GraphFunction {
 	//拖拽坐标系相关
 	private beginDrag = false;//标记是否要开始拖拽
 	private isDrag = false;//标记是否正在拖拽
-	private startOffset:{x:number,y:number}|null = null;//记录上一次拖拽的位置
+	private startOffset: { x: number, y: number } | null = null;//记录上一次拖拽的位置
 	private cx: number = null as any;
 	private cy: number = null as any;
 
@@ -161,7 +161,7 @@ class GraphFunction {
 		this.eventListener();
 		this.setCanvasWH();
 		this.cacheCoor(this.coorCtx);
-		this.cacheFun(this.funCtx as CanvasRenderingContext2D,false,false,true);
+		this.cacheFun(this.funCtx as CanvasRenderingContext2D, false, false, true);
 		this.show();
 	}
 
@@ -210,7 +210,7 @@ class GraphFunction {
 	private static pixel2value(pixel: number, unit: Unit) {
 		let unitValue = unit.value || 1;
 		if (!unit.pixel) throw new Error("unit.pixel is undefined!");
-		return ((pixel / unit.pixel) * unitValue).toFixed(2) as any * 1;
+		return ((pixel / unit.pixel) * unitValue) * 1;
 	};
 
 	/** 值转换为像素 */
@@ -265,8 +265,8 @@ class GraphFunction {
 		if (!xUnitMince || !yUnitMince) throw new Error("yUnit.mince is undefined!");
 		let xUnitSuffix = xUnit.suffix;
 		let yUnitSuffix = yUnit.suffix;
-		if (!xUnitSuffix) throw new Error("xUnit.suffix is undefined!");
-		if (!yUnitSuffix) throw new Error("yUnit.suffix is undefined!");
+		if (xUnitSuffix == undefined) throw new Error("xUnit.suffix is undefined!");
+		if (yUnitSuffix == undefined) throw new Error("yUnit.suffix is undefined!");
 
 		let start = null, end = null;
 		//已知箭头长度，算出箭头直角边的长度
@@ -440,8 +440,8 @@ class GraphFunction {
      * @param clear
      * @param isParse
      */
-	private cacheFun(ctx:CanvasRenderingContext2D,anim = false,clear = false,isParse = false) {
-		let {opts,centerPos} = this;
+	private cacheFun(ctx: CanvasRenderingContext2D, anim = false, clear = false, isParse = false) {
+		let { opts, centerPos } = this;
 		if (!opts.width) throw new Error("opts.width is undefined!");
 		if (!opts.height) throw new Error("opts.height is undefined!");
 		if (!opts.xUnit) throw new Error("opts.xUnit is undefined!");
@@ -450,9 +450,9 @@ class GraphFunction {
 		if (!opts.fun) throw new Error("opts.fun is undefined!");
 		if (!opts.range) throw new Error("opts.range is undefined!");
 
-		if(clear){
+		if (clear) {
 			//清除画布
-			ctx.clearRect(0,0,opts.width,opts.height);
+			ctx.clearRect(0, 0, opts.width, opts.height);
 		}
 
 		let fun = opts.fun;
@@ -462,94 +462,94 @@ class GraphFunction {
 		let i = -centerPos.x;
 		let sum = 0;
 
-        let xUnitConvert = opts.xUnit.convert as any;
-        let yUnitConvert = opts.yUnit.convert as any;
+		let xUnitConvert = opts.xUnit.convert as any;
+		let yUnitConvert = opts.yUnit.convert as any;
 
 		/*根据x坐标绘制一小段线段*/
-		let drawLine = (x:number,xValue:number)=>{
-			if(!domain(xUnitConvert(xValue))) return;
+		let drawLine = (x: number, xValue: number) => {
+			if (!domain(xUnitConvert(xValue))) return;
 
-            let y = GraphFunction.value2pixel(fun(xValue),opts.yUnit as Unit);
-            if(!range(yUnitConvert(GraphFunction.pixel2value(y,opts.yUnit as Unit)))) return;
-			let start = this.centerCoor2CanvasCoor(x,y);
-            if(sum<(opts.width as number)){
-                let xValue = GraphFunction.pixel2value(x+1,opts.xUnit as Unit);
-				y = GraphFunction.value2pixel(fun(xValue),opts.yUnit as Unit);
-				let end = this.centerCoor2CanvasCoor(x+1,y);
+			let y = GraphFunction.value2pixel(fun(xValue), opts.yUnit as Unit);
+			if (!range(yUnitConvert(GraphFunction.pixel2value(y, opts.yUnit as Unit)))) return;
+			let start = this.centerCoor2CanvasCoor(x, y);
+			if (sum < (opts.width as number)) {
+				let xValue = GraphFunction.pixel2value(x + 1, opts.xUnit as Unit);
+				y = GraphFunction.value2pixel(fun(xValue), opts.yUnit as Unit);
+				let end = this.centerCoor2CanvasCoor(x + 1, y);
 				ctx.beginPath();
-				ctx.drawLine(start,end);
+				ctx.drawLine(start, end);
 				ctx.stroke();
 			}
 		};
 
-		if(anim){
+		if (anim) {
 			let animation = () => {
 				ctx.strokeStyle = opts.color as string;
-				if(sum>(opts.width as number)) return;
-                let xValue = GraphFunction.pixel2value(i,opts.xUnit as Unit);
-                while(!domain(xUnitConvert(xValue))) {
-                    i++;
-                    sum++;
-                    xValue = GraphFunction.pixel2value(i,opts.xUnit as Unit);
-                    if(sum>(opts.width as number)) {
-                        return;
-                    }
-                }
-				setTimeout(animation,0);
-				drawLine(i,xValue);
+				if (sum > (opts.width as number)) return;
+				let xValue = GraphFunction.pixel2value(i, opts.xUnit as Unit);
+				while (!domain(xUnitConvert(xValue))) {
+					i++;
+					sum++;
+					xValue = GraphFunction.pixel2value(i, opts.xUnit as Unit);
+					if (sum > (opts.width as number)) {
+						return;
+					}
+				}
+				setTimeout(animation, 0);
+				drawLine(i, xValue);
 				i++;
-                sum++;
+				sum++;
 			};
 			animation();
-		}else{
+		} else {
 			ctx.strokeStyle = opts.color as string;
-			for(;sum<opts.width;i++){
-                let xValue = GraphFunction.pixel2value(i,opts.xUnit);
-				drawLine(i,xValue);
+			for (; sum < opts.width; i++) {
+				let xValue = GraphFunction.pixel2value(i, opts.xUnit);
+				drawLine(i, xValue);
 				sum++;
-            }
+			}
 		}
 
 		//标记点
-        let points = opts.points||[];
-        for(let j=0;j<points.length;j++){
-            let p = points[j];
-            if(isParse){
+		let points = opts.points || [];
+		for (let j = 0; j < points.length; j++) {
+			let p = points[j];
+			if (isParse) {
 				let xUnitParse = opts.xUnit.parse;
 				let yUnitParse = opts.yUnit.parse;
-				if(!xUnitParse) throw new Error("xUnit.parse is undefined!");
-				if(!yUnitParse) throw new Error("yUnit.parse is undefined!");
+				if (!xUnitParse) throw new Error("xUnit.parse is undefined!");
+				if (!yUnitParse) throw new Error("yUnit.parse is undefined!");
 				p.x = xUnitParse(p.x);
-				if(p.y) yUnitParse(p.y);
+				if (p.y) yUnitParse(p.y);
 			}
-			this.markPoint(ctx,p);
-        }
+			this.markPoint(ctx, p);
+		}
 	};
 
     /**
      * 画函数曲线
      */
-    private drawFun(refresh=false,anim=false) {
-		let {funCtx,opts,ctx,funCanvas} = this;
-        if(refresh) this.cacheFun(funCtx as CanvasRenderingContext2D,anim,true);//更新缓存的坐标
-        ctx.drawImage(funCanvas,0,0,opts.width as number,opts.height as number);
+	private drawFun(refresh = false, anim = false) {
+		let { funCtx, opts, ctx, funCanvas } = this;
+		if (refresh) this.cacheFun(funCtx as CanvasRenderingContext2D, anim, true);//更新缓存的坐标
+		ctx.drawImage(funCanvas, 0, 0, opts.width as number, opts.height as number);
 	};
-	
+
 	/**重新缓存坐标轴和函数曲线 */
-    private reCache(){
-		let {coorCtx,funCtx} = this;
-        this.cacheCoor(coorCtx);
-        this.cacheFun(funCtx as CanvasRenderingContext2D,false,true);
-    };
+	private reCache() {
+		let { coorCtx, funCtx } = this;
+		this.cacheCoor(coorCtx);
+		this.cacheFun(funCtx as CanvasRenderingContext2D, false, true);
+	};
 
 	private show() {
 		this.drawCoor();
-		this.cacheFun(this.ctx as CanvasRenderingContext2D,this.opts.animation);
-    };
+		this.cacheFun(this.ctx as CanvasRenderingContext2D, this.opts.animation);
+	};
 
 	/** 标记点 */
-	private markPoint(ctx:CanvasRenderingContext2D,p:MarkPoint) {
-		let {centerPos,opts} = this;
+	private markPoint(ctx: CanvasRenderingContext2D, p: MarkPoint) {
+		let { centerPos, opts } = this;
 		if (!opts.width) throw new Error("opts.width is undefined!");
 		if (!opts.height) throw new Error("opts.height is undefined!");
 		if (!opts.xUnit) throw new Error("opts.xUnit is undefined!");
@@ -558,121 +558,121 @@ class GraphFunction {
 		if (!opts.fun) throw new Error("opts.fun is undefined!");
 		if (!opts.range) throw new Error("opts.range is undefined!");
 
-        let topMax = centerPos.y;//上边的边界
-        let bottomMax = centerPos.y - opts.height;//下边的边界
-        let rightMax = opts.width - centerPos.x;//右边的边界
+		let topMax = centerPos.y;//上边的边界
+		let bottomMax = centerPos.y - opts.height;//下边的边界
+		let rightMax = opts.width - centerPos.x;//右边的边界
 
-        let xUnitConvert = opts.xUnit.convert as any;
-        let yUnitConvert = opts.yUnit.convert as any;
+		let xUnitConvert = opts.xUnit.convert as any;
+		let yUnitConvert = opts.yUnit.convert as any;
 
-        //若x不在定义域内，返回
-        if (p.x === undefined||!opts.domain(xUnitConvert(p.x))) return;
-        //先把坐标值转换为像素值
-        let x = GraphFunction.value2pixel(p.x, opts.xUnit);
+		//若x不在定义域内，返回
+		if (p.x === undefined || !opts.domain(xUnitConvert(p.x))) return;
+		//先把坐标值转换为像素值
+		let x = GraphFunction.value2pixel(p.x, opts.xUnit);
 		p.y = p.y as any || opts.fun(p.x).toFixed(2);
-        //若y不在值域内，返回
-        if (!opts.range(yUnitConvert(p.y))) return;
+		//若y不在值域内，返回
+		if (!opts.range(yUnitConvert(p.y))) return;
 
-        if (p.y == 0) p.y = 0;//保留小数位后，如果y为0.00，就赋值为0
-        if (p.y as number - Math.floor(p.y as number) == 0) p.y = Math.floor(p.y as number);//如果y的小数部分为0，那么就抛弃小数部分
-        p.mark = p.mark || "P";
-        let y = GraphFunction.value2pixel(p.y as number, opts.yUnit);
-        ctx.beginPath();
-        ctx.save();
-        ctx.strokeStyle = opts.markPointColor as string;
-        ctx.lineWidth = opts.markPointLineWidth as number;
-        ctx.fillStyle = opts.markPointColor as string;
-        ctx.font = opts.markPointFontSize + "px 微软雅黑";
-        ctx.setLineDash([3, 3]);
+		if (p.y == 0) p.y = 0;//保留小数位后，如果y为0.00，就赋值为0
+		if (p.y as number - Math.floor(p.y as number) == 0) p.y = Math.floor(p.y as number);//如果y的小数部分为0，那么就抛弃小数部分
+		p.mark = p.mark || "P";
+		let y = GraphFunction.value2pixel(p.y as number, opts.yUnit);
+		ctx.beginPath();
+		ctx.save();
+		ctx.strokeStyle = opts.markPointColor as string;
+		ctx.lineWidth = opts.markPointLineWidth as number;
+		ctx.fillStyle = opts.markPointColor as string;
+		ctx.font = opts.markPointFontSize + "px 微软雅黑";
+		ctx.setLineDash([3, 3]);
 
 
-        let coor = this.centerCoor2CanvasCoor(x, y);
-        if (p.showDotted === undefined || p.showDotted !== false) {
-            ctx.drawLine(this.centerCoor2CanvasCoor(0, y), coor);
-            ctx.drawLine(this.centerCoor2CanvasCoor(x, 0), coor);
-        }
-        ctx.stroke();
+		let coor = this.centerCoor2CanvasCoor(x, y);
+		if (p.showDotted === undefined || p.showDotted !== false) {
+			ctx.drawLine(this.centerCoor2CanvasCoor(0, y), coor);
+			ctx.drawLine(this.centerCoor2CanvasCoor(x, 0), coor);
+		}
+		ctx.stroke();
 
-        //y的值没有超出画布高度，才有必要花点
-        if(y>bottomMax&&y<topMax){
+		//y的值没有超出画布高度，才有必要花点
+		if (y > bottomMax && y < topMax) {
 			ctx.beginPath();
 			ctx.arc(coor.x, coor.y, opts.markPointRadius as number, 0, 2 * Math.PI);
 			ctx.fill();
 		}
 
-        let xText = xUnitConvert(p.x) + opts.xUnit.suffix;
-        let yText = yUnitConvert(p.y) + opts.yUnit.suffix;
-        let coorText = p.mark + "( " + xText + "，" + yText + " )";
-        let coorTextWidth = ctx.measureText(coorText).width;
-        let autoY = y;
-        //若y超出了画布高度，那么要把显示的坐标信息的y坐标固定到画布边缘
-        if(y>topMax - 20){
-            autoY = topMax - 20;
-        }
-        if(y<bottomMax){
-        	autoY = bottomMax;
+		let xText = xUnitConvert(p.x) + opts.xUnit.suffix;
+		let yText = yUnitConvert(p.y) + opts.yUnit.suffix;
+		let coorText = p.mark + "( " + xText + "，" + yText + " )";
+		let coorTextWidth = ctx.measureText(coorText).width;
+		let autoY = y;
+		//若y超出了画布高度，那么要把显示的坐标信息的y坐标固定到画布边缘
+		if (y > topMax - 20) {
+			autoY = topMax - 20;
+		}
+		if (y < bottomMax) {
+			autoY = bottomMax;
 		}
 		let autoX = x;
-        //若x坐标加上文本的宽度超出了边缘，那么重新调整x坐标
-        if(x + coorTextWidth>rightMax-10){
-        	autoX = rightMax - coorTextWidth-10;
+		//若x坐标加上文本的宽度超出了边缘，那么重新调整x坐标
+		if (x + coorTextWidth > rightMax - 10) {
+			autoX = rightMax - coorTextWidth - 10;
 		}
-        coor = this.centerCoor2CanvasCoor(autoX, autoY);
-        ctx.fillText(coorText, coor.x + 5, coor.y - 5);
-        ctx.restore();
+		coor = this.centerCoor2CanvasCoor(autoX, autoY);
+		ctx.fillText(coorText, coor.x + 5, coor.y - 5);
+		ctx.restore();
 	};
 
 	/**事件绑定 */
-	private eventListener(){
-		let {beginDrag,isDrag,startOffset,isMouseDown,centerPos,opts,ctx} = this;
-		window.addEventListener("mousemove",e=>{
+	private eventListener() {
+		let { beginDrag, isDrag, startOffset, isMouseDown, centerPos, opts, ctx } = this;
+		window.addEventListener("mousemove", e => {
 
 			//开启了拖拽的话，就不标记点了
-			if (beginDrag===true){
-				if(!isDrag) return;
-				if(!startOffset) throw new Error("startOffset is undefined!");
+			if (beginDrag === true) {
+				if (!isDrag) return;
+				if (!startOffset) throw new Error("startOffset is undefined!");
 				var xd = e.offsetX - startOffset.x;
 				var yd = e.offsetY - startOffset.y;
-				this.cx+=xd;
-				this.cy+=yd;
+				this.cx += xd;
+				this.cy += yd;
 
-				this.setCenterPos(this.cx,this.cy);
+				this.setCenterPos(this.cx, this.cy);
 				this.drawCoor(true);
 				this.drawFun(true);
-	
-				startOffset = {x:e.offsetX,y:e.offsetY};
+
+				startOffset = { x: e.offsetX, y: e.offsetY };
 				return;
 			}
-	
+
 			//若鼠标未按下，就不标记点！
-			if(!isMouseDown) return;
+			if (!isMouseDown) return;
 			this.drawCoor();
 			this.drawFun();
 			//计算出x坐标
-			var x = GraphFunction.pixel2value(e.offsetX - centerPos.x,opts.xUnit as Unit);
+			var x = GraphFunction.pixel2value(e.offsetX - centerPos.x, opts.xUnit as Unit);
 			//标记点
-			this.markPoint(ctx,{x:x});
+			this.markPoint(ctx, { x: x });
 		});
-	
-		window.addEventListener("mousedown",e=>{
-	
+
+		window.addEventListener("mousedown", e => {
+
 			this.drawCoor();
 			this.drawFun();
 			//开启了拖拽的话，就不标记点了
-			if (beginDrag===true){
+			if (beginDrag === true) {
 				isDrag = true;
-				startOffset = {x:e.offsetX,y:e.offsetY};
+				startOffset = { x: e.offsetX, y: e.offsetY };
 				return;
 			}
-	
+
 			isMouseDown = true;
 			//计算出x坐标
-			var x = GraphFunction.pixel2value(e.offsetX - centerPos.x,this.opts.xUnit as Unit);
+			var x = GraphFunction.pixel2value(e.offsetX - centerPos.x, this.opts.xUnit as Unit);
 			//标记点
-			this.markPoint(ctx,{x:x});
+			this.markPoint(ctx, { x: x });
 		});
-	
-		window.addEventListener("mouseup",e=>{
+
+		window.addEventListener("mouseup", e => {
 			isDrag = false;
 			isMouseDown = false;
 			this.drawCoor();
@@ -681,79 +681,79 @@ class GraphFunction {
 	}
 
 	/** 根据新的options重绘 */
-	public invalidate(options:Options) {
+	public invalidate(options: Options) {
 		options.xUnit = { ...this.opts.xUnit, ...options.xUnit };
 		options.yUnit = { ...this.opts.yUnit, ...options.yUnit };
 		this.opts = { ...this.opts, ...options };
 		this.setCanvasWH();
 		this.drawCoor(true);
 		this.drawFun(true);
-    };
+	};
 
 	/** 打开拖拽坐标系*/
-	public openDrag(isOpen=true) {
-		let {centerPos,canvas} = this;
-	    if(isOpen){
-	        this.cx = centerPos.x;
-	        this.cy = centerPos.y;
-            canvas.style.cursor = "move";
-        }else{
-	        this.cx = null as any;
-	        this.cy = null as any;
-            canvas.style.cursor = "pointer";
-        }
-        this.beginDrag = isOpen;
+	public openDrag(isOpen = true) {
+		let { centerPos, canvas } = this;
+		if (isOpen) {
+			this.cx = centerPos.x;
+			this.cy = centerPos.y;
+			canvas.style.cursor = "move";
+		} else {
+			this.cx = null as any;
+			this.cy = null as any;
+			canvas.style.cursor = "pointer";
+		}
+		this.beginDrag = isOpen;
 	};
-	
-	/** 设置样式主题 */
-	public setTheme(theme:"light"|"dark") {
-		let {opts} = this;
-        switch (theme){
-            case "light":
-                opts = Object.assign({},opts,{
-                    hCoorColor:"blue",
-                    vCoorColor:"red",
-                    gridColor:"green",
-                    color:"purple",
-                    coorTextColor:"black",
-                    markPointColor:"brown",
-                    backgroundColor:"white"
-                });
-                break;
-            case "dark":
-                opts = Object.assign({},opts,{
-                    hCoorColor:"white",
-                    vCoorColor:"white",
-                    gridColor:"gray",
-                    color:"white",
-                    coorTextColor:"white",
-                    markPointColor:"white",
-                    backgroundColor:"#233"
-                });
-                break;
-            default:
-                opts = Object.assign({},opts,{
-                    hCoorColor:"black",
-                    vCoorColor:"black",
-                    gridColor:"gray",
-                    color:"black",
-                    coorTextColor:"black",
-                    markPointColor:"black",
-                    backgroundColor:"white"
-                });
-                break;
-        }
-        this.reCache();
-    };
 
-    /**重新加载一段options来显示函数曲线 */
-    public reload(options:Options){
-		let {opts} = this;
-        options.xUnit = Object.assign({},opts.xUnit,options.xUnit);
-	    options.yUnit = Object.assign({},opts.yUnit,options.yUnit);
-        opts = Object.assign({},opts,options);
-        this.reCache();
-    };
+	/** 设置样式主题 */
+	public setTheme(theme: "light" | "dark") {
+		let { opts } = this;
+		switch (theme) {
+			case "light":
+				opts = Object.assign({}, opts, {
+					hCoorColor: "blue",
+					vCoorColor: "red",
+					gridColor: "green",
+					color: "purple",
+					coorTextColor: "black",
+					markPointColor: "brown",
+					backgroundColor: "white"
+				});
+				break;
+			case "dark":
+				opts = Object.assign({}, opts, {
+					hCoorColor: "white",
+					vCoorColor: "white",
+					gridColor: "gray",
+					color: "white",
+					coorTextColor: "white",
+					markPointColor: "white",
+					backgroundColor: "#233"
+				});
+				break;
+			default:
+				opts = Object.assign({}, opts, {
+					hCoorColor: "black",
+					vCoorColor: "black",
+					gridColor: "gray",
+					color: "black",
+					coorTextColor: "black",
+					markPointColor: "black",
+					backgroundColor: "white"
+				});
+				break;
+		}
+		this.reCache();
+	};
+
+	/**重新加载一段options来显示函数曲线 */
+	public reload(options: Options) {
+		let { opts } = this;
+		options.xUnit = Object.assign({}, opts.xUnit, options.xUnit);
+		options.yUnit = Object.assign({}, opts.yUnit, options.yUnit);
+		opts = Object.assign({}, opts, options);
+		this.reCache();
+	};
 
 
 }

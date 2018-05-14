@@ -162,7 +162,7 @@ function GraphFunction(options) {
 	 */
 	var pixel2value = function (pixel,unit) {
 		var unitValue = unit.value||1;
-		return ((pixel/unit.pixel)*unitValue).toFixed(2)*1;
+		return ((pixel/unit.pixel)*unitValue)*1;
 	};
 
 	/**

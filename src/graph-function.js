@@ -11,7 +11,7 @@ CanvasRenderingContext2D.prototype.drawLine = function (start, end) {
     this.moveTo(start.x, start.y);
     this.lineTo(end.x, end.y);
 };
-var GraphFunction = (function () {
+var GraphFunction = /** @class */ (function () {
     function GraphFunction(options) {
         this.opts = {
             width: 600,
@@ -147,7 +147,7 @@ var GraphFunction = (function () {
         var unitValue = unit.value || 1;
         if (!unit.pixel)
             throw new Error("unit.pixel is undefined!");
-        return ((pixel / unit.pixel) * unitValue).toFixed(2) * 1;
+        return ((pixel / unit.pixel) * unitValue) * 1;
     };
     ;
     /** 值转换为像素 */
@@ -209,9 +209,9 @@ var GraphFunction = (function () {
             throw new Error("yUnit.mince is undefined!");
         var xUnitSuffix = xUnit.suffix;
         var yUnitSuffix = yUnit.suffix;
-        if (!xUnitSuffix)
+        if (xUnitSuffix == undefined)
             throw new Error("xUnit.suffix is undefined!");
-        if (!yUnitSuffix)
+        if (yUnitSuffix == undefined)
             throw new Error("yUnit.suffix is undefined!");
         var start = null, end = null;
         //已知箭头长度，算出箭头直角边的长度
@@ -262,7 +262,7 @@ var GraphFunction = (function () {
                 ctx.stroke();
                 //显示刻度文本
                 var value = GraphFunction.pixel2value(i, xUnit);
-                if (xUnit.showScale(xUnitConvert(value))) {
+                if (xUnit.showScale(xUnitConvert(value))) { //如果要显示刻度值，才显示
                     scaleText = xUnitConvert(value) + xUnitSuffix;
                     textWidth = ctx.measureText(scaleText).width;
                     textCoor = this.centerCoor2CanvasCoor(i - textWidth * 0.5, -opts.scaleFontSize + y);
